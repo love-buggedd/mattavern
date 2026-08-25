@@ -1,12 +1,9 @@
 import { ctx, cam, cursor, fgColor } from "./state"
-import { PALETTE } from "../palette"
+import { getDrawColor } from "./palette"
 
-// 6 bytes per char (rows 0-5), bits 0-2 = cols left→right. Row 5 = descender.
 /* eslint-disable */
 const FONT = new Uint8Array([
-// sp  !          "          #          $          %          &          '
     0,0,0,0,0,0,  2,2,2,0,2,0,  5,5,0,0,0,0,  5,7,5,7,5,0,  2,7,3,6,2,0,  5,4,2,1,5,0,  2,5,2,5,7,0,  2,2,0,0,0,0,
-// (          )          *          +          ,          -          .          /
     4,2,2,2,4,0,  1,2,2,2,1,0,  0,5,2,5,0,0,  0,2,7,2,0,0,  0,0,0,2,2,0,  0,0,7,0,0,0,  0,0,0,0,2,0,  4,4,2,1,1,0,
 // 0          1          2          3          4          5          6          7
     2,5,5,5,2,0,  2,3,2,2,7,0,  6,5,4,2,7,0,  6,4,6,4,6,0,  5,5,7,4,4,0,  7,1,3,4,6,0,  6,1,7,5,2,0,  7,4,2,2,2,0,
@@ -32,7 +29,7 @@ const FONT = new Uint8Array([
 
 function drawChar(code: number, x: number, y: number, c: number): void {
     const base = (code - 32) * 6
-    ctx.fillStyle = PALETTE[c] ?? PALETTE[6]
+    ctx.fillStyle = getDrawColor(c)
     const ox = -cam.x
     const oy = -cam.y
     for (let row = 0; row < 6; row++) {
@@ -45,15 +42,12 @@ function drawChar(code: number, x: number, y: number, c: number): void {
         }
     }
 }
-
 export function print(s: string | number, x?: number, y?: number, c?: number): void {
     const text = String(s)
     const color = c ?? fgColor.value
-
     let cx = x ?? cursor.x
     let cy = y ?? cursor.y
     const startX = cx
-
     for (let i = 0; i < text.length; i++) {
         const ch = text[i]
         if (ch === '\n') {
@@ -71,15 +65,12 @@ export function print(s: string | number, x?: number, y?: number, c?: number): v
             cy += 6
         }
     }
-
     cursor.x = cx
     cursor.y = cy
 }
-
 export function color(c: number): void {
     fgColor.value = c
 }
-
 export function cursor_(x: number = 0, y: number = 0): void {
     cursor.x = x
     cursor.y = y
