@@ -11,11 +11,11 @@
 </head>
 <body>
   <header>
-    <a href="/">← Mät Tavern</a>
+    <a href="https://sites.google.com/view/mattavern">← Mät Tavern</a>
     <span class="sep">/</span>
     <span id="cart-title">PICO-8</span>
     <button id="catalogue-btn">Open Catalogue</button>
-    <button id="load-btn">Load .p8.png</button>
+    <button id="load-btn">Load Cart</button>
     <button id="fullscreen-btn" title="Fullscreen">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
     </button>
@@ -39,7 +39,8 @@
       <canvas id="screen" width="128" height="128" tabindex="0"></canvas>
       <div id="no-cart">
         <p>NO CARTRIDGE</p>
-        <p>use the button above to load a .p8.png file</p>
+        <p id="no-cart-hint">drag a .p8 or .p8.png here, or use the buttons above</p>
+        <p id="no-cart-error" class="hidden"></p>
       </div>
     </div>
     <p id="controls">

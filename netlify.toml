@@ -1,0 +1,3 @@
+[build]
+  command = "node ports/pico8-emulator/scripts/gen-manifest.js && node ports/pico8-emulator/node_modules/.bin/vite build --config ports/pico8-emulator/vite.config.js && npm ci --prefix web && npm run build --prefix web"
+  publish = "web/dist"

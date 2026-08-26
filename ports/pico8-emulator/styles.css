@@ -160,6 +160,17 @@ canvas {
 
 #no-cart.hidden { display: none; }
 
+#no-cart-error {
+  color: #ff6b6b;
+  font-size: 0.65rem;
+  max-width: 18rem;
+  text-align: center;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.hidden { display: none; }
+
 #no-cart p:first-child {
   color: var(--accent);
   font-weight: 700;
