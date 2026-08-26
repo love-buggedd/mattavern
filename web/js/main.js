@@ -15,6 +15,13 @@ firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.database();
 
+// PICO-8 games made by Matt.
+// To add a new game: export as game.p8.png from PICO-8, drop it in web/public/pico8/carts/,
+// then add an entry here with url: "/pico8/player.html?cart=/pico8/carts/game.p8.png"
+const PICO8_GAMES = [
+  // { name: "My First Game", desc: "...", url: "/pico8/player.html?cart=/pico8/carts/myfirstgame.p8.png" },
+];
+
 // game data
 const GAMES = [
   {
@@ -1383,6 +1390,17 @@ function buildCage() {
         </div>`,
   ).join("");
 
+  const pico8CardHtml = PICO8_GAMES.map(
+    (g) =>
+      `<div class="game-card">
+            <div class="game-card-top">
+                <span class="game-name">${g.name}</span>
+                <span class="game-desc">${g.desc}</span>
+            </div>
+            <a href="${g.url}" class="game-play">Play</a>
+        </div>`,
+  ).join("");
+
   const gamesTab = buildTab(
     "#games-button",
     `
@@ -1395,11 +1413,15 @@ function buildCage() {
                     <div id="featured-right">
                         <div id="featured-title"><h2>Slipways</h2></div>
                         <div id="featured-description"><p>Make the biggest, baddest, most prosperous empire possible!</p></div>
-                        <div id="featured-button"><button>Play Now</button></div>
+                        <div id="featured-button"><a href="https://mattavern.netlify.app/web/public/pico8/player.html" class="featured-play-link"><button>Play Now</button></a></div>
                     </div>
                 </div>
             </div>
         </div>
+        ${pico8CardHtml ? `<section id="pico8-section">
+            <h3 class="catalogue-title">PICO-8</h3>
+            <div class="catalogue-grid">${pico8CardHtml}</div>
+        </section>` : ""}
         <section id="catalogue">
             <h3 id="catalogue-title">Games</h3>
             <div id="catalogue-grid">${cardHtml}</div>

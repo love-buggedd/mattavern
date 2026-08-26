@@ -1,3 +1,10 @@
+:root {
+  --primary: rgba(30, 30, 30, 0.6);
+  --secondary: rgba(60, 60, 60, 0.3);
+  --tertiary: rgba(255, 255, 255, 0.5);
+  --quarternary: rgba(255, 255, 255, 0.2);
+}
+
 /* --- Login --- */
 #login-overlay {
   position: fixed;
@@ -210,13 +217,6 @@
 
 #Cage {
   display: contents;
-}
-
-:root {
-  --primary: rgba(30, 30, 30, 0.6);
-  --secondary: rgba(60, 60, 60, 0.3);
-  --tertiary: rgba(255, 255, 255, 0.5);
-  --quarternary: rgba(255, 255, 255, 0.2);
 }
 
 body {

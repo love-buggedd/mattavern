@@ -1,1 +1,0 @@
-export const mapData = new Uint8Array(128 * 64)
