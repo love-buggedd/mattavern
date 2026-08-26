@@ -1,15 +1,10 @@
-import { resolve } from 'path'
 import { defineConfig } from 'vite'
+import { viteSingleFile } from 'vite-plugin-singlefile'
 
 export default defineConfig({
+    publicDir: '../assets',
+    plugins: [viteSingleFile()],
     build: {
-        rollupOptions: {
-            input: {
-                main:     resolve(__dirname, 'index.html'),
-                games:    resolve(__dirname, 'games.html'),
-                wheel:    resolve(__dirname, 'wheel.html'),
-                chatroom: resolve(__dirname, 'chatroom.html'),
-            }
-        }
-    }
+        target: 'esnext',
+    },
 })
