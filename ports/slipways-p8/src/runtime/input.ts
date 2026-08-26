@@ -1,8 +1,8 @@
 const KEY_MAP: Record<string, number> = {
-    'ArrowLeft': 0,
-    'ArrowRight': 1,
-    'ArrowUp': 2,
-    'ArrowDown': 3,
+    'ArrowLeft': 0, 'a': 0, 'A': 0,
+    'ArrowRight': 1, 'd': 1, 'D': 1,
+    'ArrowUp': 2, 'w': 2, 'W': 2,
+    'ArrowDown': 3, 's': 3, 'S': 3,
     'z': 4, 'Z': 4,
     'x': 5, 'X': 5,
     'Enter': 6,

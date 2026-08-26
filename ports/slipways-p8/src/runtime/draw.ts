@@ -83,5 +83,5 @@ export function line(x0: number, y0: number, x1: number, y1: number, color: numb
 }
 
 export function camera(x = 0, y = 0): void {
-    cam.x = x; cam.y = y
+    cam.x = Math.floor(x); cam.y = Math.floor(y)
 }

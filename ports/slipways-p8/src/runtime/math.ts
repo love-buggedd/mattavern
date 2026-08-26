@@ -13,7 +13,7 @@ export function cos(t: number): number { return  Math.cos(t * TAU) }
 export function atan2(dy: number, dx: number): number {
     return ((-Math.atan2(dy, dx) / TAU) + 1) % 1
 }
-export function rnd(n: number): number { return Math.random() * n }
+export function rnd(n: number = 1): number { return Math.random() * n }
 export function sgn(x: number): number { return x < 0 ? -1 : 1 }
 export function tonum(s: string): number { return parseFloat(s) }
 export function tostr(n: number): string { return String(n) }

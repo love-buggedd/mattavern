@@ -3,7 +3,7 @@ import type { LuaTable } from './ob'
 export type KvClass = {
     (config?: LuaTable): LuaTable
     iq?: KvClass
-    pq?: (obj: LuaTable) => void
+    pq?: (this: LuaTable, obj: LuaTable) => void
     fz?: string
     jr(this: KvClass, config?: string): KvClass
     [key: string]: any
@@ -13,11 +13,11 @@ function makeClass(parent: KvClass, defaults: LuaTable): KvClass {
         const inst: LuaTable = Object.create(cls)
         if (config) qj(inst, config)
         let ko: KvClass | undefined = cls
-        let iy: ((obj: LuaTable) => void) | undefined
+        let iy: ((this: LuaTable, obj: LuaTable) => void) | undefined
         while (ko) {
             if (ko.pq && ko.pq !== iy) {
                 iy = ko.pq
-                iy(inst)
+                iy.call(inst, inst)
             }
             ko = ko.iq
         }

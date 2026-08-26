@@ -1,6 +1,6 @@
 import { gfx } from '../data/gfx'
 import { mapData } from '../data/map'
-import { gff, ROM, ADDR } from './memory'
+import { gff, ROM, RAM, ADDR } from './memory'
 
 function parseSections(p8text: string): Record<string, string[]> {
     const sections: Record<string, string[]> = {}
@@ -53,7 +53,9 @@ export function loadCart(p8text: string): void {
                 if (j + 1 >= line.length) break
                 const hi = parseInt(line[j], 16)
                 const lo = parseInt(line[j + 1], 16)
-                mapData[row * 128 + col] = ((isNaN(hi) ? 0 : hi) << 4) | (isNaN(lo) ? 0 : lo)
+                const val = ((isNaN(hi) ? 0 : hi) << 4) | (isNaN(lo) ? 0 : lo)
+                mapData[row * 128 + col] = val
+                RAM[ADDR.MAP + row * 128 + col] = val
             }
         }
     }
