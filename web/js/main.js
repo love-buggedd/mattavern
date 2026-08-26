@@ -1,171 +1,343 @@
-import Fuse from 'fuse.js'
+import Fuse from "fuse.js";
 
 // firebase
 /* global firebase */
 firebase.initializeApp({
-    apiKey:            'AIzaSyD4yKI62hSUA0vr3Peq6oDsBGFyqmd93Fo',
-    authDomain:        'mat-tavern.firebaseapp.com',
-    databaseURL:       'https://mat-tavern-default-rtdb.firebaseio.com',
-    projectId:         'mat-tavern',
-    storageBucket:     'mat-tavern.firebasestorage.app',
-    messagingSenderId: '585863762633',
-    appId:             '1:585863762633:web:ab65945e91015f0010f318'
-})
+  apiKey: "AIzaSyD4yKI62hSUA0vr3Peq6oDsBGFyqmd93Fo",
+  authDomain: "mat-tavern.firebaseapp.com",
+  databaseURL: "https://mat-tavern-default-rtdb.firebaseio.com",
+  projectId: "mat-tavern",
+  storageBucket: "mat-tavern.firebasestorage.app",
+  messagingSenderId: "585863762633",
+  appId: "1:585863762633:web:ab65945e91015f0010f318",
+});
 
-const auth = firebase.auth()
-const db   = firebase.database()
+const auth = firebase.auth();
+const db = firebase.database();
 
 // game data
 const GAMES = [
-    { name: 'ADGAC',                     desc: 'A quirky defense game starring crabs fighting off waves of enemies.',                     url: 'https://mattavern.netlify.app/ports/external-ports/lprktbhxokaetxuhnh.html' },
-    { name: 'Anton Blast',               desc: 'A high-energy action platformer with explosive mechanics and nonstop chaos.',             url: 'https://mattavern.netlify.app/ports/external-ports/xxj.html' },
-    { name: 'Baldi Plus',                desc: "An expanded take on Baldi's Basics with new items, characters, and surprises.",           url: 'https://mattavern.netlify.app/ports/external-ports/mhybkqfjutvztmwsrcvlh.html' },
-    { name: 'Baldi Remaster',            desc: 'The classic edutainment horror game rebuilt with updated visuals and gameplay.',          url: 'https://mattavern.netlify.app/ports/external-ports/dspea.html' },
-    { name: 'Bendy',                     desc: 'Explore a decaying cartoon animation studio hiding sinister, inky secrets.',              url: 'https://mattavern.netlify.app/ports/external-ports/voqqslhfqwrgjesmoskvf.html' },
-    { name: 'Blood Money',               desc: 'A gritty action game set in a brutal world of crime and high-stakes deals.',              url: 'https://mattavern.netlify.app/ports/external-ports/ezfuhixglg.html' },
-    { name: 'Bridge Race',               desc: 'Race to collect tiles and build bridges faster than your rivals to win.',                 url: 'https://mattavern.netlify.app/ports/external-ports/lvkvuvjddfaqefuhoykpbjo.html' },
-    { name: 'Buckshot Roulette',         desc: 'A tense horror game of chance — load the shotgun, take your turn, survive.',             url: 'https://mattavern.netlify.app/ports/external-ports/rmdcxnngcyobfbhyobvi.html' },
-    { name: 'Celeste',                   desc: 'A precise platformer about climbing a mountain and confronting your inner demons.',       url: 'https://mattavern.netlify.app/ports/external-ports/r.html' },
-    { name: "Class of '09",              desc: 'A darkly comedic visual novel navigating the social hellscape of high school.',           url: 'https://mattavern.netlify.app/ports/external-ports/eywuebqmvrvmdgdoj.html' },
-    { name: 'Clover Pit',                desc: 'A fast action game dropping you into a dangerous pit where luck meets skill.',            url: 'https://mattavern.netlify.app/ports/external-ports/iduwssuflrmqokamtdoqnh.html' },
-    { name: 'Dead Plate',                desc: 'A short RPG Maker horror game about a deadly dinner invitation gone wrong.',              url: 'https://mattavern.netlify.app/ports/external-ports/exzuyfiiruktyohwh.html' },
-    { name: 'DELTARUNE',                 desc: 'Kris and Susie fall into a mysterious dark world hidden beneath their school.',           url: 'https://mattavern.netlify.app/ports/external-ports/hbibw.html' },
-    { name: "Don't Take This Cat Home",  desc: 'A short narrative about the bittersweet bond between a person and a stray cat.',         url: 'https://mattavern.netlify.app/ports/external-ports/s.html' },
-    { name: 'Dumb Ways to Die',          desc: "Hilarious minigames based on the viral safety campaign. Don't die stupidly.",            url: 'https://mattavern.netlify.app/ports/external-ports/gkpeurfunz.html' },
-    { name: 'FNAE',                      desc: "A fan-made Five Nights at Freddy's experience with its own twist on the lore.",          url: 'https://mattavern.netlify.app/ports/external-ports/gjmjmbgdkxfhtcjftzqzir.html' },
-    { name: 'FNAF 1',                    desc: "Survive five nights as a security guard at Freddy Fazbear's haunted pizzeria.",          url: 'https://mattavern.netlify.app/ports/external-ports/nllkxxdrwdcchhfsnt.html' },
-    { name: 'FNAF 2',                    desc: "Return to Freddy's with new animatronics and no doors to hide behind.",                  url: 'https://mattavern.netlify.app/ports/external-ports/rc.html' },
-    { name: 'FNAF 3',                    desc: "A horror experience set 30 years after the original restaurant's dark closure.",         url: 'https://mattavern.netlify.app/ports/external-ports/gpapkmmfprdsnzmdyrj.html' },
-    { name: 'FNAF 4',                    desc: 'Face your nightmares alone in your bedroom on the longest final night.',                 url: 'https://mattavern.netlify.app/ports/external-ports/y.html' },
-    { name: 'FNAF 4: Halloween Ed.',     desc: "Alone in your bedroom and it's even more spooky than before!",                          url: 'https://mattavern.netlify.app/ports/external-ports/ldknouazxagjmellnrfaji.html' },
-    { name: 'FNAF: Pizza Sim',           desc: 'Manage a pizzeria by day, survive the night in this comedic series finale.',             url: 'https://mattavern.netlify.app/ports/external-ports/gjcgrysvapjcfgwnzoofo.html' },
-    { name: 'FNAF: Sister Location',     desc: 'Work underground alongside Circus Baby and her deeply unsettling crew.',                 url: 'https://mattavern.netlify.app/ports/external-ports/xelvomnn.html' },
-    { name: 'FNAF: UCN',                 desc: "Face 50 animatronics in the ultimate challenge from William Afton's perspective.",       url: 'https://mattavern.netlify.app/ports/external-ports/dedyfchzvbxducqmuxpv.html' },
-    { name: 'FNAF World',                desc: 'An RPG spin-off where Freddy and friends battle through a colorful overworld.',          url: 'https://mattavern.netlify.app/ports/external-ports/uzpfdcrsagpfuprgsj.html' },
-    { name: 'Hollow Knight',             desc: 'Explore a vast, crumbling underground kingdom of bugs in this dark metroidvania.',       url: 'https://mattavern.netlify.app/ports/external-ports/yamyc.html' },
-    { name: 'Human Expenditure Program', desc: 'A darkly comedic game about just how disposable workers really are.',                   url: 'https://mattavern.netlify.app/ports/external-ports/oadmhknhjmpecnc.html' },
-    { name: 'Iron Lung',                 desc: 'Pilot a submarine through a sea of blood on a world where the oceans are gone.',        url: 'https://mattavern.netlify.app/ports/external-ports/htrwpuffpvwehmzrnyxci.html' },
-    { name: 'Kindergarten',              desc: "A darkly humorous point-and-click set in the world's most dangerous school.",           url: 'https://mattavern.netlify.app/ports/external-ports/mt.html' },
-    { name: 'Minesweeper',               desc: 'The timeless puzzle classic — uncover every safe tile without hitting a mine.',         url: 'https://mattavern.netlify.app/ports/external-ports/xhcsjmkfdznflljsavk.html' },
-    { name: 'Peaks of Yore',             desc: 'A relaxing old-book-styled climbing game about conquering majestic mountain peaks.',    url: 'https://mattavern.netlify.app/ports/external-ports/jkzmrfnxxptzeieykpc.html' },
-    { name: 'People Playground',         desc: 'A physics sandbox with no rules — experiment on ragdolls however you see fit.',        url: 'https://mattavern.netlify.app/ports/external-ports/txguhutdbvmxrzqozfnuqdcc.html' },
-    { name: 'Raldi',                     desc: "A fan-made Baldi's Basics parody with its own strange humor and mechanics.",           url: 'https://mattavern.netlify.app/ports/external-ports/dlryazywezvr.html' },
-    { name: 'REPO',                      desc: 'Cooperatively retrieve haunted objects from dangerous locations — for profit.',         url: 'https://mattavern.netlify.app/ports/external-ports/xifhvwwglvigdpiloyfcny.html' },
-    { name: 'Saihate Station',           desc: 'A short atmospheric horror game set at the end of an abandoned train line.',           url: 'https://mattavern.netlify.app/ports/external-ports/ydlpoidubyzn.html' },
-    { name: 'Schoolboy Runaway',         desc: 'Escape from school at all costs in this frantic action runner.',                      url: 'https://mattavern.netlify.app/ports/external-ports/eduibduj.html' },
-    { name: 'Soft & Wet',                desc: "A stylish action game heavily inspired by JoJo's Bizarre Adventure.",                 url: 'https://mattavern.netlify.app/ports/external-ports/hibscdfnxjiqvwszwn.html' },
-    { name: 'ULTRAKILL',                 desc: 'A retro ultrafast FPS where you drain blood from enemies to stay alive.',             url: 'https://mattavern.netlify.app/ports/external-ports/fyebebclefubo.html' },
-    { name: 'Undertale',                 desc: 'An RPG where you can befriend, fight, or spare every monster you encounter.',         url: 'https://mattavern.netlify.app/ports/external-ports/aubkfkp.html' },
-    { name: 'Yume Nikki',                desc: 'Wander through the strange and surreal dreamscape of a reclusive girl named Madotsuki.', url: 'https://mattavern.netlify.app/ports/external-ports/mvrot.html' },
-]
+  {
+    name: "ADGAC",
+    desc: "A quirky defense game starring crabs fighting off waves of enemies.",
+    url: "https://mattavern.netlify.app/ports/external-ports/lprktbhxokaetxuhnh.html",
+  },
+  {
+    name: "Anton Blast",
+    desc: "A high-energy action platformer with explosive mechanics and nonstop chaos.",
+    url: "https://mattavern.netlify.app/ports/external-ports/xxj.html",
+  },
+  {
+    name: "Baldi Plus",
+    desc: "An expanded take on Baldi's Basics with new items, characters, and surprises.",
+    url: "https://mattavern.netlify.app/ports/external-ports/mhybkqfjutvztmwsrcvlh.html",
+  },
+  {
+    name: "Baldi Remaster",
+    desc: "The classic edutainment horror game rebuilt with updated visuals and gameplay.",
+    url: "https://mattavern.netlify.app/ports/external-ports/dspea.html",
+  },
+  {
+    name: "Bendy",
+    desc: "Explore a decaying cartoon animation studio hiding sinister, inky secrets.",
+    url: "https://mattavern.netlify.app/ports/external-ports/voqqslhfqwrgjesmoskvf.html",
+  },
+  {
+    name: "Blood Money",
+    desc: "A gritty action game set in a brutal world of crime and high-stakes deals.",
+    url: "https://mattavern.netlify.app/ports/external-ports/ezfuhixglg.html",
+  },
+  {
+    name: "Bridge Race",
+    desc: "Race to collect tiles and build bridges faster than your rivals to win.",
+    url: "https://mattavern.netlify.app/ports/external-ports/lvkvuvjddfaqefuhoykpbjo.html",
+  },
+  {
+    name: "Buckshot Roulette",
+    desc: "A tense horror game of chance — load the shotgun, take your turn, survive.",
+    url: "https://mattavern.netlify.app/ports/external-ports/rmdcxnngcyobfbhyobvi.html",
+  },
+  {
+    name: "Celeste",
+    desc: "A precise platformer about climbing a mountain and confronting your inner demons.",
+    url: "https://mattavern.netlify.app/ports/external-ports/r.html",
+  },
+  {
+    name: "Class of '09",
+    desc: "A darkly comedic visual novel navigating the social hellscape of high school.",
+    url: "https://mattavern.netlify.app/ports/external-ports/eywuebqmvrvmdgdoj.html",
+  },
+  {
+    name: "Clover Pit",
+    desc: "A fast action game dropping you into a dangerous pit where luck meets skill.",
+    url: "https://mattavern.netlify.app/ports/external-ports/iduwssuflrmqokamtdoqnh.html",
+  },
+  {
+    name: "Dead Plate",
+    desc: "A short RPG Maker horror game about a deadly dinner invitation gone wrong.",
+    url: "https://mattavern.netlify.app/ports/external-ports/exzuyfiiruktyohwh.html",
+  },
+  {
+    name: "DELTARUNE",
+    desc: "Kris and Susie fall into a mysterious dark world hidden beneath their school.",
+    url: "https://mattavern.netlify.app/ports/external-ports/hbibw.html",
+  },
+  {
+    name: "Don't Take This Cat Home",
+    desc: "A short narrative about the bittersweet bond between a person and a stray cat.",
+    url: "https://mattavern.netlify.app/ports/external-ports/s.html",
+  },
+  {
+    name: "Dumb Ways to Die",
+    desc: "Hilarious minigames based on the viral safety campaign. Don't die stupidly.",
+    url: "https://mattavern.netlify.app/ports/external-ports/gkpeurfunz.html",
+  },
+  {
+    name: "FNAE",
+    desc: "A fan-made Five Nights at Freddy's experience with its own twist on the lore.",
+    url: "https://mattavern.netlify.app/ports/external-ports/gjmjmbgdkxfhtcjftzqzir.html",
+  },
+  {
+    name: "FNAF 1",
+    desc: "Survive five nights as a security guard at Freddy Fazbear's haunted pizzeria.",
+    url: "https://mattavern.netlify.app/ports/external-ports/nllkxxdrwdcchhfsnt.html",
+  },
+  {
+    name: "FNAF 2",
+    desc: "Return to Freddy's with new animatronics and no doors to hide behind.",
+    url: "https://mattavern.netlify.app/ports/external-ports/rc.html",
+  },
+  {
+    name: "FNAF 3",
+    desc: "A horror experience set 30 years after the original restaurant's dark closure.",
+    url: "https://mattavern.netlify.app/ports/external-ports/gpapkmmfprdsnzmdyrj.html",
+  },
+  {
+    name: "FNAF 4",
+    desc: "Face your nightmares alone in your bedroom on the longest final night.",
+    url: "https://mattavern.netlify.app/ports/external-ports/y.html",
+  },
+  {
+    name: "FNAF 4: Halloween Ed.",
+    desc: "Alone in your bedroom and it's even more spooky than before!",
+    url: "https://mattavern.netlify.app/ports/external-ports/ldknouazxagjmellnrfaji.html",
+  },
+  {
+    name: "FNAF: Pizza Sim",
+    desc: "Manage a pizzeria by day, survive the night in this comedic series finale.",
+    url: "https://mattavern.netlify.app/ports/external-ports/gjcgrysvapjcfgwnzoofo.html",
+  },
+  {
+    name: "FNAF: Sister Location",
+    desc: "Work underground alongside Circus Baby and her deeply unsettling crew.",
+    url: "https://mattavern.netlify.app/ports/external-ports/xelvomnn.html",
+  },
+  {
+    name: "FNAF: UCN",
+    desc: "Face 50 animatronics in the ultimate challenge from William Afton's perspective.",
+    url: "https://mattavern.netlify.app/ports/external-ports/dedyfchzvbxducqmuxpv.html",
+  },
+  {
+    name: "FNAF World",
+    desc: "An RPG spin-off where Freddy and friends battle through a colorful overworld.",
+    url: "https://mattavern.netlify.app/ports/external-ports/uzpfdcrsagpfuprgsj.html",
+  },
+  {
+    name: "Hollow Knight",
+    desc: "Explore a vast, crumbling underground kingdom of bugs in this dark metroidvania.",
+    url: "https://mattavern.netlify.app/ports/external-ports/yamyc.html",
+  },
+  {
+    name: "Human Expenditure Program",
+    desc: "A darkly comedic game about just how disposable workers really are.",
+    url: "https://mattavern.netlify.app/ports/external-ports/oadmhknhjmpecnc.html",
+  },
+  {
+    name: "Iron Lung",
+    desc: "Pilot a submarine through a sea of blood on a world where the oceans are gone.",
+    url: "https://mattavern.netlify.app/ports/external-ports/htrwpuffpvwehmzrnyxci.html",
+  },
+  {
+    name: "Kindergarten",
+    desc: "A darkly humorous point-and-click set in the world's most dangerous school.",
+    url: "https://mattavern.netlify.app/ports/external-ports/mt.html",
+  },
+  {
+    name: "Minesweeper",
+    desc: "The timeless puzzle classic — uncover every safe tile without hitting a mine.",
+    url: "https://mattavern.netlify.app/ports/external-ports/xhcsjmkfdznflljsavk.html",
+  },
+  {
+    name: "Peaks of Yore",
+    desc: "A relaxing old-book-styled climbing game about conquering majestic mountain peaks.",
+    url: "https://mattavern.netlify.app/ports/external-ports/jkzmrfnxxptzeieykpc.html",
+  },
+  {
+    name: "People Playground",
+    desc: "A physics sandbox with no rules — experiment on ragdolls however you see fit.",
+    url: "https://mattavern.netlify.app/ports/external-ports/txguhutdbvmxrzqozfnuqdcc.html",
+  },
+  {
+    name: "Raldi",
+    desc: "A fan-made Baldi's Basics parody with its own strange humor and mechanics.",
+    url: "https://mattavern.netlify.app/ports/external-ports/dlryazywezvr.html",
+  },
+  {
+    name: "REPO",
+    desc: "Cooperatively retrieve haunted objects from dangerous locations — for profit.",
+    url: "https://mattavern.netlify.app/ports/external-ports/xifhvwwglvigdpiloyfcny.html",
+  },
+  {
+    name: "Saihate Station",
+    desc: "A short atmospheric horror game set at the end of an abandoned train line.",
+    url: "https://mattavern.netlify.app/ports/external-ports/ydlpoidubyzn.html",
+  },
+  {
+    name: "Schoolboy Runaway",
+    desc: "Escape from school at all costs in this frantic action runner.",
+    url: "https://mattavern.netlify.app/ports/external-ports/eduibduj.html",
+  },
+  {
+    name: "Soft & Wet",
+    desc: "A stylish action game heavily inspired by JoJo's Bizarre Adventure.",
+    url: "https://mattavern.netlify.app/ports/external-ports/hibscdfnxjiqvwszwn.html",
+  },
+  {
+    name: "ULTRAKILL",
+    desc: "A retro ultrafast FPS where you drain blood from enemies to stay alive.",
+    url: "https://mattavern.netlify.app/ports/external-ports/fyebebclefubo.html",
+  },
+  {
+    name: "Undertale",
+    desc: "An RPG where you can befriend, fight, or spare every monster you encounter.",
+    url: "https://mattavern.netlify.app/ports/external-ports/aubkfkp.html",
+  },
+  {
+    name: "Yume Nikki",
+    desc: "Wander through the strange and surreal dreamscape of a reclusive girl named Madotsuki.",
+    url: "https://mattavern.netlify.app/ports/external-ports/mvrot.html",
+  },
+];
 
 // silly particles
 function initParticles(container, opts = {}) {
-    const {
-        count       = 80,
-        speed       = 1.8,
-        connectDist = 200,
-        mouseDist   = 250,
-    } = opts
+  const { count = 80, speed = 1.8, connectDist = 200, mouseDist = 250 } = opts;
 
-    const canvas = document.createElement('canvas')
-    canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;'
-    container.prepend(canvas)
+  const canvas = document.createElement("canvas");
+  canvas.style.cssText =
+    "position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;";
+  container.prepend(canvas);
 
-    const ctx = canvas.getContext('2d')
-    let W, H, particles, running = true
-    const mouse = { x: null, y: null }
+  const ctx = canvas.getContext("2d");
+  let W,
+    H,
+    particles,
+    running = true;
+  const mouse = { x: null, y: null };
 
-    function resize() {
-        const r = container.getBoundingClientRect()
-        W = canvas.width  = r.width
-        H = canvas.height = r.height
-    }
+  function resize() {
+    const r = container.getBoundingClientRect();
+    W = canvas.width = r.width;
+    H = canvas.height = r.height;
+  }
 
-    function rand(a, b) { return Math.random() * (b - a) + a }
+  function rand(a, b) {
+    return Math.random() * (b - a) + a;
+  }
 
-    function spawn() {
-        particles = Array.from({ length: count }, () => ({
-            x: rand(0, W), y: rand(0, H),
-            vx: rand(-speed, speed), vy: rand(-speed, speed),
-        }))
-    }
+  function spawn() {
+    particles = Array.from({ length: count }, () => ({
+      x: rand(0, W),
+      y: rand(0, H),
+      vx: rand(-speed, speed),
+      vy: rand(-speed, speed),
+    }));
+  }
 
-    function tick() {
-        if (!running) return
-        ctx.clearRect(0, 0, W, H)
-        for (let i = 0; i < particles.length; i++) {
-            const p = particles[i]
-            p.x += p.vx; p.y += p.vy
-            if (p.x < 0 || p.x > W) p.vx *= -1
-            if (p.y < 0 || p.y > H) p.vy *= -1
+  function tick() {
+    if (!running) return;
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
 
-            ctx.beginPath()
-            ctx.arc(p.x, p.y, 2, 0, Math.PI * 2)
-            ctx.fillStyle = 'rgba(157,125,255,0.6)'
-            ctx.fill()
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(157,125,255,0.6)";
+      ctx.fill();
 
-            for (let j = i + 1; j < particles.length; j++) {
-                const q = particles[j]
-                const dx = p.x - q.x, dy = p.y - q.y
-                const d = Math.sqrt(dx*dx + dy*dy)
-                if (d < connectDist) {
-                    ctx.beginPath()
-                    ctx.moveTo(p.x, p.y)
-                    ctx.lineTo(q.x, q.y)
-                    ctx.strokeStyle = `rgba(123,108,246,${0.25*(1-d/connectDist)})`
-                    ctx.lineWidth = 1.2
-                    ctx.stroke()
-                }
-            }
-
-            if (mouse.x !== null) {
-                const dx = p.x - mouse.x, dy = p.y - mouse.y
-                const d = Math.sqrt(dx*dx + dy*dy)
-                if (d < mouseDist) {
-                    ctx.beginPath()
-                    ctx.moveTo(p.x, p.y)
-                    ctx.lineTo(mouse.x, mouse.y)
-                    ctx.strokeStyle = `rgba(123,108,246,${0.4*(1-d/mouseDist)})`
-                    ctx.lineWidth = 1
-                    ctx.stroke()
-                }
-            }
+      for (let j = i + 1; j < particles.length; j++) {
+        const q = particles[j];
+        const dx = p.x - q.x,
+          dy = p.y - q.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < connectDist) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = `rgba(123,108,246,${0.25 * (1 - d / connectDist)})`;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
         }
-        requestAnimationFrame(tick)
-    }
+      }
 
-    function onMouseMove(e) {
-        const r = container.getBoundingClientRect()
-        mouse.x = e.clientX - r.left
-        mouse.y = e.clientY - r.top
+      if (mouse.x !== null) {
+        const dx = p.x - mouse.x,
+          dy = p.y - mouse.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < mouseDist) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = `rgba(123,108,246,${0.4 * (1 - d / mouseDist)})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
     }
-    function onMouseLeave() { mouse.x = null; mouse.y = null }
-    function onResize() {
-        const r = container.getBoundingClientRect()
-        if (r.width === 0 || r.height === 0) return
-        resize(); spawn()
-    }
+    requestAnimationFrame(tick);
+  }
 
-    container.addEventListener('mousemove', onMouseMove)
-    container.addEventListener('mouseleave', onMouseLeave)
-    window.addEventListener('resize', onResize)
+  function onMouseMove(e) {
+    const r = container.getBoundingClientRect();
+    mouse.x = e.clientX - r.left;
+    mouse.y = e.clientY - r.top;
+  }
+  function onMouseLeave() {
+    mouse.x = null;
+    mouse.y = null;
+  }
+  function onResize() {
+    const r = container.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return;
+    resize();
+    spawn();
+  }
 
-    resize(); spawn(); tick()
+  container.addEventListener("mousemove", onMouseMove);
+  container.addEventListener("mouseleave", onMouseLeave);
+  window.addEventListener("resize", onResize);
 
-    return function stop() {
-        running = false
-        container.removeEventListener('mousemove', onMouseMove)
-        container.removeEventListener('mouseleave', onMouseLeave)
-        window.removeEventListener('resize', onResize)
-    }
+  resize();
+  spawn();
+  tick();
+
+  return function stop() {
+    running = false;
+    container.removeEventListener("mousemove", onMouseMove);
+    container.removeEventListener("mouseleave", onMouseLeave);
+    window.removeEventListener("resize", onResize);
+  };
 }
 
 // login & authentication
 function buildLogin() {
-    const overlay = document.createElement('div')
-    overlay.id = 'login-overlay'
-    overlay.innerHTML = `
+  const overlay = document.createElement("div");
+  overlay.id = "login-overlay";
+  overlay.innerHTML = `
         <div id="login-group">
             <div id="login-card">
                 <button id="info-button" title="Info">
@@ -193,153 +365,202 @@ function buildLogin() {
                 </div>
             </div>
         </div>
-    `
-    document.body.appendChild(overlay)
+    `;
+  document.body.appendChild(overlay);
 
-    const stop = initParticles(overlay)
+  const stop = initParticles(overlay);
 
-    const loginBtn      = overlay.querySelector('#login-btn')
-    const usernameInput = overlay.querySelector('#login-username')
-    const passwordInput = overlay.querySelector('#login-password')
-    const errorEl       = overlay.querySelector('#login-error')
+  const loginBtn = overlay.querySelector("#login-btn");
+  const usernameInput = overlay.querySelector("#login-username");
+  const passwordInput = overlay.querySelector("#login-password");
+  const errorEl = overlay.querySelector("#login-error");
 
-    const loginErr = [
-        "I'm sorry, who are you again?",
-        "That doesn't seem to be quite right.",
-        "Maybe you should check that again.",
-        "Are you sure that's correct?",
-        "Hmm, that doesn't look right.",
-        "I don't think that's the right one.",
-        "That seems to be incorrect.",
-        "Oops! That doesn't seem to work.",
-        "Are you sure you entered that correctly?",
-        "Hmm, that doesn't match our records."
-    ]
+  const loginErr = [
+    "I'm sorry, who are you again?",
+    "That doesn't seem to be quite right.",
+    "Maybe you should check that again.",
+    "Are you sure that's correct?",
+    "Hmm, that doesn't look right.",
+    "I don't think that's the right one.",
+    "That seems to be incorrect.",
+    "Oops! That doesn't seem to work.",
+    "Are you sure you entered that correctly?",
+    "Hmm, that doesn't match our records.",
+  ];
 
-    async function login() {
-        const username = usernameInput.value.trim()
-        const password = passwordInput.value
-        if (!username || !password) return
+  async function login() {
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    if (!username || !password) return;
 
-        loginBtn.disabled = true
-        errorEl.textContent = ''
+    loginBtn.disabled = true;
+    errorEl.textContent = "";
 
-        try {
-            const snap = await db.ref('users/' + username + '/email').get()
-            if (!snap.exists()) {
-                errorEl.textContent = loginErr[Math.floor(Math.random() * loginErr.length)]
-                loginBtn.disabled = false
-                return
-            }
-            currentUsername = username
-            const cred = await auth.signInWithEmailAndPassword(snap.val(), password)
-            const uid = cred.user.uid
-            // first-login plumbing — non-blocking
-            db.ref(`users/${username}/uid`).transaction(cur => cur === null ? uid : undefined)
-            db.ref(`uid_to_username/${uid}`).set(username)
-            db.ref(`profiles/${uid}`).get().then(ps => {
-                if (!ps.exists()) db.ref(`profiles/${uid}`).set({ displayUsername: username, usernameHistory: [username] })
-            })
-        } catch (err) {
-            currentUsername = null
-            errorEl.textContent = loginErr[Math.floor(Math.random() * loginErr.length)]
-            console.error(err)
-            loginBtn.disabled = false
-        }
+    try {
+      const snap = await db.ref("users/" + username + "/email").get();
+      if (!snap.exists()) {
+        errorEl.textContent =
+          loginErr[Math.floor(Math.random() * loginErr.length)];
+        loginBtn.disabled = false;
+        return;
+      }
+      currentUsername = username;
+      const cred = await auth.signInWithEmailAndPassword(snap.val(), password);
+      const uid = cred.user.uid;
+      // first-login plumbing — non-blocking
+      db.ref(`users/${username}/uid`).transaction((cur) =>
+        cur === null ? uid : undefined,
+      );
+      db.ref(`uid_to_username/${uid}`).set(username);
+      db.ref(`profiles/${uid}`)
+        .get()
+        .then((ps) => {
+          if (!ps.exists())
+            db.ref(`profiles/${uid}`).set({
+              displayUsername: username,
+              usernameHistory: [username],
+            });
+        });
+    } catch (err) {
+      currentUsername = null;
+      errorEl.textContent =
+        loginErr[Math.floor(Math.random() * loginErr.length)];
+      console.error(err);
+      loginBtn.disabled = false;
     }
+  }
 
-    const group     = overlay.querySelector('#login-group')
-    const infoBtn   = overlay.querySelector('#info-button')
-    const infoClose = overlay.querySelector('#info-close')
+  const group = overlay.querySelector("#login-group");
+  const infoBtn = overlay.querySelector("#info-button");
+  const infoClose = overlay.querySelector("#info-close");
 
-    infoBtn.addEventListener('click', () => group.classList.add('info-open'))
-    infoClose.addEventListener('click', () => group.classList.remove('info-open'))
+  infoBtn.addEventListener("click", () => group.classList.add("info-open"));
+  infoClose.addEventListener("click", () =>
+    group.classList.remove("info-open"),
+  );
 
-    loginBtn.addEventListener('click', login)
-    usernameInput.addEventListener('keydown', e => { if (e.key === 'Enter') passwordInput.focus() })
-    passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') login() })
+  loginBtn.addEventListener("click", login);
+  usernameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") passwordInput.focus();
+  });
+  passwordInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") login();
+  });
 
-    usernameInput.focus()
+  usernameInput.focus();
 
-    return { el: overlay, stop }
+  return { el: overlay, stop };
 }
 
 // universal chat
 function makePfpPlaceholder() {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    svg.setAttribute('width', '20'); svg.setAttribute('height', '20')
-    svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('fill', 'none')
-    svg.setAttribute('stroke', 'currentColor'); svg.setAttribute('stroke-width', '1.5')
-    svg.setAttribute('stroke-linecap', 'round'); svg.setAttribute('stroke-linejoin', 'round')
-    svg.classList.add('msg-pfp-placeholder')
-    svg.innerHTML = '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'
-    return svg
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", "20");
+  svg.setAttribute("height", "20");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "1.5");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  svg.classList.add("msg-pfp-placeholder");
+  svg.innerHTML =
+    '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>';
+  return svg;
 }
 
 function appendMessage(container, msg, autoScroll, prepend = false) {
-    const nearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 80
+  const nearBottom =
+    container.scrollHeight - container.scrollTop - container.clientHeight < 80;
 
-    const wrap = document.createElement('div')
-    wrap.className = 'chat-message'
-    if (msg._key) wrap.dataset.msgKey = msg._key
+  const wrap = document.createElement("div");
+  wrap.className = "chat-message";
+  if (msg._key) wrap.dataset.msgKey = msg._key;
 
-    const pfpWrap = document.createElement('div')
-    pfpWrap.className = 'msg-pfp-wrap'
-    if (msg.uid) { pfpWrap.classList.add('clickable'); pfpWrap.addEventListener('click', () => showProfileModal(msg.uid)) }
-    if (msg.pfp) {
-        const img = document.createElement('img')
-        img.className = 'msg-pfp'; img.src = msg.pfp; img.alt = ''
-        const ph = makePfpPlaceholder(); ph.style.display = 'none'
-        img.onerror = () => { img.style.display = 'none'; ph.style.display = '' }
-        pfpWrap.appendChild(img); pfpWrap.appendChild(ph)
-    } else {
-        pfpWrap.appendChild(makePfpPlaceholder())
-    }
+  const pfpWrap = document.createElement("div");
+  pfpWrap.className = "msg-pfp-wrap";
+  if (msg.uid) {
+    pfpWrap.classList.add("clickable");
+    pfpWrap.addEventListener("click", () => showProfileModal(msg.uid));
+  }
+  if (msg.pfp) {
+    const img = document.createElement("img");
+    img.className = "msg-pfp";
+    img.src = msg.pfp;
+    img.alt = "";
+    const ph = makePfpPlaceholder();
+    ph.style.display = "none";
+    img.onerror = () => {
+      img.style.display = "none";
+      ph.style.display = "";
+    };
+    pfpWrap.appendChild(img);
+    pfpWrap.appendChild(ph);
+  } else {
+    pfpWrap.appendChild(makePfpPlaceholder());
+  }
 
-    const body   = document.createElement('div'); body.className = 'msg-body'
-    const header = document.createElement('div'); header.className = 'msg-header'
+  const body = document.createElement("div");
+  body.className = "msg-body";
+  const header = document.createElement("div");
+  header.className = "msg-header";
 
-    const nameEl = document.createElement('span'); nameEl.className = 'msg-username'
-    nameEl.style.color = msg.nameColor || '#d24cff'
-    nameEl.textContent = msg.displayUsername || 'Anonymous'
-    if (msg.uid) { nameEl.classList.add('clickable'); nameEl.addEventListener('click', () => showProfileModal(msg.uid)) }
+  const nameEl = document.createElement("span");
+  nameEl.className = "msg-username";
+  nameEl.style.color = msg.nameColor || "#d24cff";
+  nameEl.textContent = msg.displayUsername || "Anonymous";
+  if (msg.uid) {
+    nameEl.classList.add("clickable");
+    nameEl.addEventListener("click", () => showProfileModal(msg.uid));
+  }
 
-    const timeEl = document.createElement('span'); timeEl.className = 'msg-time'
-    timeEl.textContent = msg.time
-        ? new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        : ''
+  const timeEl = document.createElement("span");
+  timeEl.className = "msg-time";
+  timeEl.textContent = msg.time
+    ? new Date(msg.time).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
 
-    header.appendChild(nameEl); header.appendChild(timeEl)
+  header.appendChild(nameEl);
+  header.appendChild(timeEl);
 
-    const textEl = document.createElement('p'); textEl.className = 'msg-text'
-    textEl.textContent = msg.text || ''
+  const textEl = document.createElement("p");
+  textEl.className = "msg-text";
+  textEl.textContent = msg.text || "";
 
-    body.appendChild(header); body.appendChild(textEl)
-    wrap.appendChild(pfpWrap); wrap.appendChild(body)
+  body.appendChild(header);
+  body.appendChild(textEl);
+  wrap.appendChild(pfpWrap);
+  wrap.appendChild(body);
 
-    if (isAdmin && msg._refPath) {
-        const delBtn = document.createElement('button')
-        delBtn.className = 'msg-delete-btn'
-        delBtn.title = 'Delete'
-        delBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>'
-        delBtn.addEventListener('click', () => db.ref(msg._refPath).remove().catch(console.error))
-        wrap.appendChild(delBtn)
-    }
+  if (isAdmin && msg._refPath) {
+    const delBtn = document.createElement("button");
+    delBtn.className = "msg-delete-btn";
+    delBtn.title = "Delete";
+    delBtn.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+    delBtn.addEventListener("click", () =>
+      db.ref(msg._refPath).remove().catch(console.error),
+    );
+    wrap.appendChild(delBtn);
+  }
 
-    if (prepend) {
-        container.insertBefore(wrap, container.firstChild)
-    } else {
-        container.appendChild(wrap)
-        if (autoScroll || nearBottom) container.scrollTop = container.scrollHeight
-    }
+  if (prepend) {
+    container.insertBefore(wrap, container.firstChild);
+  } else {
+    container.appendChild(wrap);
+    if (autoScroll || nearBottom) container.scrollTop = container.scrollHeight;
+  }
 }
 
 function showProfileModal(uid) {
-    let modal = document.getElementById('profile-modal-overlay')
-    if (!modal) {
-        modal = document.createElement('div')
-        modal.id = 'profile-modal-overlay'
-        modal.innerHTML = `
+  let modal = document.getElementById("profile-modal-overlay");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "profile-modal-overlay";
+    modal.innerHTML = `
             <div id="profile-modal-card">
                 <button id="profile-modal-close"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                 <div id="profile-modal-pfp"></div>
@@ -353,384 +574,730 @@ function showProfileModal(uid) {
                 <p id="profile-modal-bio"></p>
                 <button id="profile-modal-msg" style="display:none">Message</button>
             </div>
-        `
-        document.body.appendChild(modal)
+        `;
+    document.body.appendChild(modal);
 
-        function closeModal() {
-            modal.classList.remove('open')
-            if (profileModalRef && profileModalCb) {
-                profileModalRef.off('value', profileModalCb)
-                profileModalRef = null
-                profileModalCb  = null
-            }
-        }
-        modal.querySelector('#profile-modal-close').addEventListener('click', closeModal)
-        modal.addEventListener('click', e => { if (e.target === modal) closeModal() })
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal() })
+    function closeModal() {
+      modal.classList.remove("open");
+      if (profileModalRef && profileModalCb) {
+        profileModalRef.off("value", profileModalCb);
+        profileModalRef = null;
+        profileModalCb = null;
+      }
+    }
+    modal
+      .querySelector("#profile-modal-close")
+      .addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+  }
+
+  // Detach any previous live listener before opening a different profile
+  if (profileModalRef && profileModalCb) {
+    profileModalRef.off("value", profileModalCb);
+    profileModalRef = null;
+    profileModalCb = null;
+  }
+
+  const pfpEl = modal.querySelector("#profile-modal-pfp");
+  const nameEl = modal.querySelector("#profile-modal-name");
+  const nameWrap = modal.querySelector("#profile-modal-name-wrap");
+  const historyList = modal.querySelector("#profile-modal-history-list");
+  const bioEl = modal.querySelector("#profile-modal-bio");
+  const msgBtn = modal.querySelector("#profile-modal-msg");
+
+  pfpEl.innerHTML = "";
+  pfpEl.appendChild(makePfpPlaceholder());
+  nameEl.textContent = "—";
+  nameEl.style.color = "#d24cff";
+  nameWrap.classList.remove("has-history");
+  historyList.innerHTML = "";
+  bioEl.textContent = "";
+
+  const isOwn = auth.currentUser && uid === auth.currentUser.uid;
+  msgBtn.style.display = isOwn ? "none" : "";
+  msgBtn.onclick = () => openDM && openDM(uid);
+
+  modal.classList.add("open");
+
+  profileModalCb = (snap) => {
+    if (!snap.exists()) return;
+    const p = snap.val();
+    nameEl.textContent = p.displayUsername || "—";
+    nameEl.style.color = p.nameColor || "#d24cff";
+    bioEl.textContent = p.bio || "";
+
+    const history = Array.isArray(p.usernameHistory) ? p.usernameHistory : [];
+    const past = [...history].reverse().filter((u) => u !== p.displayUsername);
+    historyList.innerHTML = "";
+    nameWrap.classList.remove("has-history");
+    if (past.length) {
+      past.forEach((name) => {
+        const el = document.createElement("p");
+        el.className = "history-tip-name";
+        el.textContent = name;
+        historyList.appendChild(el);
+      });
+      nameWrap.classList.add("has-history");
     }
 
-    // Detach any previous live listener before opening a different profile
-    if (profileModalRef && profileModalCb) {
-        profileModalRef.off('value', profileModalCb)
-        profileModalRef = null
-        profileModalCb  = null
+    pfpEl.innerHTML = "";
+    if (p.pfp) {
+      const img = document.createElement("img");
+      img.src = p.pfp;
+      img.style.cssText =
+        "width:100%;height:100%;object-fit:cover;border-radius:50%;";
+      img.onerror = () => {
+        img.remove();
+        pfpEl.appendChild(makePfpPlaceholder());
+      };
+      pfpEl.appendChild(img);
+    } else {
+      pfpEl.appendChild(makePfpPlaceholder());
     }
-
-    const pfpEl      = modal.querySelector('#profile-modal-pfp')
-    const nameEl     = modal.querySelector('#profile-modal-name')
-    const nameWrap   = modal.querySelector('#profile-modal-name-wrap')
-    const historyList= modal.querySelector('#profile-modal-history-list')
-    const bioEl      = modal.querySelector('#profile-modal-bio')
-    const msgBtn     = modal.querySelector('#profile-modal-msg')
-
-    pfpEl.innerHTML = ''; pfpEl.appendChild(makePfpPlaceholder())
-    nameEl.textContent = '—'; nameEl.style.color = '#d24cff'
-    nameWrap.classList.remove('has-history')
-    historyList.innerHTML = ''
-    bioEl.textContent  = ''
-
-    const isOwn = auth.currentUser && uid === auth.currentUser.uid
-    msgBtn.style.display = isOwn ? 'none' : ''
-    msgBtn.onclick = () => openDM && openDM(uid)
-
-    modal.classList.add('open')
-
-    profileModalCb = snap => {
-        if (!snap.exists()) return
-        const p = snap.val()
-        nameEl.textContent = p.displayUsername || '—'
-        nameEl.style.color = p.nameColor || '#d24cff'
-        bioEl.textContent  = p.bio || ''
-
-        const history = Array.isArray(p.usernameHistory) ? p.usernameHistory : []
-        const past = [...history].reverse().filter(u => u !== p.displayUsername)
-        historyList.innerHTML = ''
-        nameWrap.classList.remove('has-history')
-        if (past.length) {
-            past.forEach(name => {
-                const el = document.createElement('p')
-                el.className = 'history-tip-name'
-                el.textContent = name
-                historyList.appendChild(el)
-            })
-            nameWrap.classList.add('has-history')
-        }
-
-        pfpEl.innerHTML = ''
-        if (p.pfp) {
-            const img = document.createElement('img')
-            img.src = p.pfp; img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;'
-            img.onerror = () => { img.remove(); pfpEl.appendChild(makePfpPlaceholder()) }
-            pfpEl.appendChild(img)
-        } else {
-            pfpEl.appendChild(makePfpPlaceholder())
-        }
-    }
-    profileModalRef = db.ref(`profiles/${uid}`)
-    profileModalRef.on('value', profileModalCb)
+  };
+  profileModalRef = db.ref(`profiles/${uid}`);
+  profileModalRef.on("value", profileModalCb);
 }
 
 async function initUniversalChat(tab) {
-    const messagesEl = tab.querySelector('#universal-messages')
-    const input      = tab.querySelector('#universal-input')
-    const sendBtn    = tab.querySelector('#universal-send')
-    const baseRef    = db.ref('messages/universal')
+  const messagesEl = tab.querySelector("#universal-messages");
+  const input = tab.querySelector("#universal-input");
+  const sendBtn = tab.querySelector("#universal-send");
+  const baseRef = db.ref("messages/universal");
 
-    const seenKeys  = new Set()
-    let oldestTime  = Infinity
-    let newestTime  = 0
-    let loadingMore = false
-    let noMore      = false
+  const seenKeys = new Set();
+  let oldestTime = Infinity;
+  let newestTime = 0;
+  let loadingMore = false;
+  let noMore = false;
 
-    async function loadOlder() {
-        if (loadingMore || noMore || oldestTime === Infinity) return
-        loadingMore = true
-        const loader = document.createElement('p')
-        loader.id = 'universal-loader'; loader.textContent = '· · ·'
-        messagesEl.insertBefore(loader, messagesEl.firstChild)
-        try {
-            const snap = await baseRef.orderByChild('time').endBefore(oldestTime).limitToLast(50).get()
-            const msgs = []
-            snap.forEach(s => msgs.push({ key: s.key, val: s.val() }))
-            loader.remove()
-            if (!msgs.length) { noMore = true; return }
-            const prevH = messagesEl.scrollHeight
-            msgs.reverse().forEach(({ key, val }) => {
-                if (seenKeys.has(key)) return
-                seenKeys.add(key)
-                if (val.time < oldestTime) oldestTime = val.time
-                val._key = key; val._refPath = `messages/universal/${key}`
-                appendMessage(messagesEl, val, false, true)
-            })
-            messagesEl.scrollTop = messagesEl.scrollHeight - prevH
-        } finally { loadingMore = false }
+  async function loadOlder() {
+    if (loadingMore || noMore || oldestTime === Infinity) return;
+    loadingMore = true;
+    const loader = document.createElement("p");
+    loader.id = "universal-loader";
+    loader.textContent = "· · ·";
+    messagesEl.insertBefore(loader, messagesEl.firstChild);
+    try {
+      const snap = await baseRef
+        .orderByChild("time")
+        .endBefore(oldestTime)
+        .limitToLast(50)
+        .get();
+      const msgs = [];
+      snap.forEach((s) => msgs.push({ key: s.key, val: s.val() }));
+      loader.remove();
+      if (!msgs.length) {
+        noMore = true;
+        return;
+      }
+      const prevH = messagesEl.scrollHeight;
+      msgs.reverse().forEach(({ key, val }) => {
+        if (seenKeys.has(key)) return;
+        seenKeys.add(key);
+        if (val.time < oldestTime) oldestTime = val.time;
+        val._key = key;
+        val._refPath = `messages/universal/${key}`;
+        appendMessage(messagesEl, val, false, true);
+      });
+      messagesEl.scrollTop = messagesEl.scrollHeight - prevH;
+    } finally {
+      loadingMore = false;
     }
+  }
 
-    const histSnap = await baseRef.orderByChild('time').limitToLast(50).get()
-    histSnap.forEach(s => {
-        seenKeys.add(s.key)
-        const v = s.val()
-        if (v.time < oldestTime) oldestTime = v.time
-        if (v.time > newestTime) newestTime = v.time
-        v._key = s.key; v._refPath = `messages/universal/${s.key}`
-        appendMessage(messagesEl, v, false)
-    })
-    messagesEl.scrollTop = messagesEl.scrollHeight
+  const histSnap = await baseRef.orderByChild("time").limitToLast(50).get();
+  histSnap.forEach((s) => {
+    seenKeys.add(s.key);
+    const v = s.val();
+    if (v.time < oldestTime) oldestTime = v.time;
+    if (v.time > newestTime) newestTime = v.time;
+    v._key = s.key;
+    v._refPath = `messages/universal/${s.key}`;
+    appendMessage(messagesEl, v, false);
+  });
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 
-    baseRef.orderByChild('time').startAt(newestTime + 1).on('child_added', snap => {
-        if (seenKeys.has(snap.key)) return
-        seenKeys.add(snap.key)
-        const v = snap.val()
-        v._key = snap.key; v._refPath = `messages/universal/${snap.key}`
-        appendMessage(messagesEl, v, true)
-    })
+  baseRef
+    .orderByChild("time")
+    .startAt(newestTime + 1)
+    .on("child_added", (snap) => {
+      if (seenKeys.has(snap.key)) return;
+      seenKeys.add(snap.key);
+      const v = snap.val();
+      v._key = snap.key;
+      v._refPath = `messages/universal/${snap.key}`;
+      appendMessage(messagesEl, v, true);
+    });
 
-    baseRef.on('child_removed', snap => {
-        const el = messagesEl.querySelector(`[data-msg-key="${snap.key}"]`)
-        if (el) el.remove()
-        seenKeys.delete(snap.key)
-    })
+  baseRef.on("child_removed", (snap) => {
+    const el = messagesEl.querySelector(`[data-msg-key="${snap.key}"]`);
+    if (el) el.remove();
+    seenKeys.delete(snap.key);
+  });
 
-    messagesEl.addEventListener('scroll', () => { if (messagesEl.scrollTop < 60) loadOlder() })
+  messagesEl.addEventListener("scroll", () => {
+    if (messagesEl.scrollTop < 60) loadOlder();
+  });
 
-    async function sendMessage() {
-        const text = input.value.trim()
-        if (!text || !auth.currentUser) return
-        input.value = ''
-        sendBtn.disabled = true
-        try {
-            const uid = auth.currentUser.uid
-            const ps  = await db.ref(`profiles/${uid}`).get()
-            const p   = ps.val() || {}
-            await baseRef.push({
-                uid,
-                displayUsername: p.displayUsername || currentUsername || 'Anonymous',
-                nameColor:       p.nameColor || '#d24cff',
-                pfp:             p.pfp || '',
-                text,
-                time: firebase.database.ServerValue.TIMESTAMP,
-            })
-        } catch (err) {
-            console.error(err)
-            input.value = text
-        } finally {
-            sendBtn.disabled = false
-            input.focus()
-        }
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text || !auth.currentUser) return;
+    input.value = "";
+    sendBtn.disabled = true;
+    try {
+      const uid = auth.currentUser.uid;
+      const ps = await db.ref(`profiles/${uid}`).get();
+      const p = ps.val() || {};
+      await baseRef.push({
+        uid,
+        displayUsername: p.displayUsername || currentUsername || "Anonymous",
+        nameColor: p.nameColor || "#d24cff",
+        pfp: p.pfp || "",
+        text,
+        time: firebase.database.ServerValue.TIMESTAMP,
+      });
+    } catch (err) {
+      console.error(err);
+      input.value = text;
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
     }
+  }
 
-    sendBtn.addEventListener('click', sendMessage)
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendMessage() } })
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
 }
 
 // direct messages
 function initDMs(tab) {
-    const sidebar = tab.querySelector('#dm-sidebar')
-    // Flush any conversations that arrived before the chat tab was opened
-    const toFlush = pendingDMs.splice(0)
-    for (const { convId, otherUid } of toFlush) {
-        addDMSidebarItem(sidebar, convId, otherUid, tab)
-    }
-    // The user_dms listener is already running from onAuthStateChanged;
-    // future child_added events will find #dm-sidebar in DOM directly.
+  const sidebar = tab.querySelector("#dm-sidebar");
+  // Flush any conversations that arrived before the chat tab was opened
+  const toFlush = pendingDMs.splice(0);
+  for (const { convId, otherUid } of toFlush) {
+    addDMSidebarItem(sidebar, convId, otherUid, tab);
+  }
+  // The user_dms listener is already running from onAuthStateChanged;
+  // future child_added events will find #dm-sidebar in DOM directly.
 }
 
 async function addDMSidebarItem(sidebar, convId, otherUid, tab) {
-    if (sidebar.querySelector(`[data-conv="${convId}"]`)) return
+  if (sidebar.querySelector(`[data-conv="${convId}"]`)) return;
 
-    const placeholder = sidebar.querySelector('.chat-placeholder-text')
-    if (placeholder) placeholder.remove()
+  const placeholder = sidebar.querySelector(".chat-placeholder-text");
+  if (placeholder) placeholder.remove();
 
-    const item = document.createElement('div')
-    item.className = 'dm-sidebar-item'
-    item.dataset.conv = convId
+  const item = document.createElement("div");
+  item.className = "dm-sidebar-item";
+  item.dataset.conv = convId;
 
-    const pfpEl = document.createElement('div')
-    pfpEl.className = 'dm-item-pfp'
-    pfpEl.appendChild(makePfpPlaceholder())
+  const pfpEl = document.createElement("div");
+  pfpEl.className = "dm-item-pfp";
+  pfpEl.appendChild(makePfpPlaceholder());
 
-    const infoEl = document.createElement('div')
-    infoEl.className = 'dm-item-info'
-    const nameEl = document.createElement('p')
-    nameEl.className = 'dm-item-name'
-    nameEl.textContent = '...'
-    const previewEl = document.createElement('p')
-    previewEl.className = 'dm-item-preview'
-    infoEl.appendChild(nameEl)
-    infoEl.appendChild(previewEl)
-    item.appendChild(pfpEl)
-    item.appendChild(infoEl)
-    sidebar.appendChild(item)
+  const infoEl = document.createElement("div");
+  infoEl.className = "dm-item-info";
+  const nameEl = document.createElement("p");
+  nameEl.className = "dm-item-name";
+  nameEl.textContent = "...";
+  const previewEl = document.createElement("p");
+  previewEl.className = "dm-item-preview";
+  infoEl.appendChild(nameEl);
+  infoEl.appendChild(previewEl);
+  item.appendChild(pfpEl);
+  item.appendChild(infoEl);
+  sidebar.appendChild(item);
 
-    db.ref(`profiles/${otherUid}`).get().then(snap => {
-        const p = snap.val() || {}
-        nameEl.textContent  = p.displayUsername || 'Unknown'
-        nameEl.style.color  = p.nameColor || '#d24cff'
-        if (p.pfp) {
-            const img = document.createElement('img')
-            img.src = p.pfp
-            img.style.cssText = 'width:100%;height:100%;object-fit:cover;'
-            img.onerror = () => { img.remove(); pfpEl.appendChild(makePfpPlaceholder()) }
-            pfpEl.innerHTML = ''
-            pfpEl.appendChild(img)
-        }
-    })
+  db.ref(`profiles/${otherUid}`)
+    .get()
+    .then((snap) => {
+      const p = snap.val() || {};
+      nameEl.textContent = p.displayUsername || "Unknown";
+      nameEl.style.color = p.nameColor || "#d24cff";
+      if (p.pfp) {
+        const img = document.createElement("img");
+        img.src = p.pfp;
+        img.style.cssText = "width:100%;height:100%;object-fit:cover;";
+        img.onerror = () => {
+          img.remove();
+          pfpEl.appendChild(makePfpPlaceholder());
+        };
+        pfpEl.innerHTML = "";
+        pfpEl.appendChild(img);
+      }
+    });
 
-    db.ref(`dms/${convId}/lastMessage`).on('value', snap => {
-        previewEl.textContent = snap.val() || ''
-    })
+  db.ref(`dms/${convId}/lastMessage`).on("value", (snap) => {
+    previewEl.textContent = snap.val() || "";
+  });
 
-    item.addEventListener('click', () => {
-        sidebar.querySelectorAll('.dm-sidebar-item').forEach(i => i.classList.remove('active'))
-        item.classList.add('active')
-        activeDMConvId = convId
-        loadDMConversation(convId, otherUid, tab)
-    })
+  item.addEventListener("click", () => {
+    sidebar
+      .querySelectorAll(".dm-sidebar-item")
+      .forEach((i) => i.classList.remove("active"));
+    item.classList.add("active");
+    activeDMConvId = convId;
+    loadDMConversation(convId, otherUid, tab);
+  });
 
-    if (activeDMConvId === convId) item.classList.add('active')
+  if (activeDMConvId === convId) item.classList.add("active");
 }
 
 function loadDMConversation(convId, otherUid, tab) {
-    const gen = ++dmGeneration
-    if (activeDMRef && activeDMCallback) {
-        activeDMRef.off('child_added', activeDMCallback)
-        activeDMRef = null
-        activeDMCallback = null
+  const gen = ++dmGeneration;
+  if (activeDMRef && activeDMCallback) {
+    activeDMRef.off("child_added", activeDMCallback);
+    activeDMRef = null;
+    activeDMCallback = null;
+  }
+  if (activeDMBaseRef) {
+    activeDMBaseRef.off("child_removed");
+    activeDMBaseRef = null;
+  }
+
+  const emptyEl = tab.querySelector("#dm-empty");
+  const convEl = tab.querySelector("#dm-conversation");
+  const messagesEl = tab.querySelector("#dm-messages");
+
+  emptyEl.style.display = "none";
+  convEl.style.display = "";
+  messagesEl.innerHTML = "";
+  currentDMLoadOlder = null;
+
+  const oldInput = tab.querySelector("#dm-input");
+  const oldSend = tab.querySelector("#dm-send");
+  const newInput = oldInput.cloneNode(true);
+  const newSend = oldSend.cloneNode(true);
+  oldInput.replaceWith(newInput);
+  oldSend.replaceWith(newSend);
+
+  const baseRef = db.ref(`dms/${convId}/messages`);
+  const seenKeys = new Set();
+  let oldestTime = Infinity;
+  let newestTime = 0;
+  let loadingMore = false;
+  let noMore = false;
+
+  async function loadOlder() {
+    if (loadingMore || noMore || oldestTime === Infinity) return;
+    loadingMore = true;
+    const loader = document.createElement("p");
+    loader.className = "dm-loader";
+    loader.textContent = "· · ·";
+    messagesEl.insertBefore(loader, messagesEl.firstChild);
+    try {
+      const snap = await baseRef
+        .orderByChild("time")
+        .endBefore(oldestTime)
+        .limitToLast(50)
+        .get();
+      const msgs = [];
+      snap.forEach((s) => msgs.push({ key: s.key, val: s.val() }));
+      loader.remove();
+      if (!msgs.length) {
+        noMore = true;
+        return;
+      }
+      const prevH = messagesEl.scrollHeight;
+      msgs.reverse().forEach(({ key, val }) => {
+        if (seenKeys.has(key)) return;
+        seenKeys.add(key);
+        if (val.time < oldestTime) oldestTime = val.time;
+        val._key = key;
+        val._refPath = `dms/${convId}/messages/${key}`;
+        appendMessage(messagesEl, val, false, true);
+      });
+      messagesEl.scrollTop = messagesEl.scrollHeight - prevH;
+    } finally {
+      loadingMore = false;
     }
-    if (activeDMBaseRef) {
-        activeDMBaseRef.off('child_removed')
-        activeDMBaseRef = null
+  }
+
+  if (!dmScrollListenerAdded) {
+    dmScrollListenerAdded = true;
+    messagesEl.addEventListener("scroll", () => {
+      if (messagesEl.scrollTop < 60 && currentDMLoadOlder) currentDMLoadOlder();
+    });
+  }
+  currentDMLoadOlder = loadOlder;
+
+  baseRef
+    .orderByChild("time")
+    .limitToLast(50)
+    .get()
+    .then((histSnap) => {
+      if (gen !== dmGeneration) return;
+      histSnap.forEach((s) => {
+        seenKeys.add(s.key);
+        const v = s.val();
+        if (v.time < oldestTime) oldestTime = v.time;
+        if (v.time > newestTime) newestTime = v.time;
+        v._key = s.key;
+        v._refPath = `dms/${convId}/messages/${s.key}`;
+        appendMessage(messagesEl, v, false);
+      });
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      const liveRef = db
+        .ref(`dms/${convId}/messages`)
+        .orderByChild("time")
+        .startAt(newestTime + 1);
+      const cb = (snap) => {
+        if (seenKeys.has(snap.key)) return;
+        seenKeys.add(snap.key);
+        const v = snap.val();
+        v._key = snap.key;
+        v._refPath = `dms/${convId}/messages/${snap.key}`;
+        appendMessage(messagesEl, v, true);
+      };
+      activeDMRef = liveRef;
+      activeDMCallback = cb;
+      liveRef.on("child_added", cb);
+
+      activeDMBaseRef = baseRef;
+      baseRef.on("child_removed", (snap) => {
+        const el = messagesEl.querySelector(`[data-msg-key="${snap.key}"]`);
+        if (el) el.remove();
+        seenKeys.delete(snap.key);
+      });
+    });
+
+  async function sendDM() {
+    const text = newInput.value.trim();
+    if (!text || !auth.currentUser) return;
+    newInput.value = "";
+    newSend.disabled = true;
+    try {
+      const uid = auth.currentUser.uid;
+      const ps = await db.ref(`profiles/${uid}`).get();
+      const p = ps.val() || {};
+      await baseRef.push({
+        uid,
+        displayUsername: p.displayUsername || currentUsername || "Anonymous",
+        nameColor: p.nameColor || "#d24cff",
+        pfp: p.pfp || "",
+        text,
+        time: firebase.database.ServerValue.TIMESTAMP,
+      });
+      await db.ref(`dms/${convId}`).update({
+        lastMessage: text,
+        lastTime: firebase.database.ServerValue.TIMESTAMP,
+      });
+    } catch (err) {
+      console.error(err);
+      newInput.value = text;
+    } finally {
+      newSend.disabled = false;
+      newInput.focus();
+    }
+  }
+
+  newSend.addEventListener("click", sendDM);
+  newInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendDM();
+    }
+  });
+  newInput.focus();
+}
+
+// wheel tool
+const WHEEL_COLORS = [
+  "#d24cff",
+  "#9b30d8",
+  "#4f8ef5",
+  "#a040d8",
+  "#c040f0",
+  "#5060f0",
+  "#7c3aed",
+  "#3b82f6",
+];
+
+function initWheelTool(tab) {
+  const canvas = tab.querySelector("#wheel-canvas");
+  const ctx = canvas.getContext("2d");
+  const titleDisp = tab.querySelector("#wheel-title-display");
+  const resultEl = tab.querySelector("#wheel-result");
+  const titleInput = tab.querySelector("#wheel-title-input");
+  const itemsList = tab.querySelector("#wheel-items-list");
+  const addBtn = tab.querySelector("#wheel-add-btn");
+
+  let items = GAMES.map((g) => ({ label: g.name, weight: 1 }));
+  let wheelRotation = 0;
+  let spinning = false;
+
+  function totalWeight() {
+    return items.reduce((s, i) => s + i.weight, 0);
+  }
+
+  function getSegments() {
+    const total = totalWeight();
+    let cum = 0;
+    return items.map((item, idx) => {
+      const angle = (item.weight / total) * 2 * Math.PI;
+      const seg = {
+        ...item,
+        startAngle: cum,
+        angle,
+        color: WHEEL_COLORS[idx % WHEEL_COLORS.length],
+      };
+      cum += angle;
+      return seg;
+    });
+  }
+
+  function drawWheel() {
+    const S = canvas.width;
+    const cx = S / 2,
+      cy = S / 2;
+    const R = S / 2 - 10;
+    const IR = R * 0.22;
+
+    ctx.clearRect(0, 0, S, S);
+
+    // outer dark ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, R + 8, 0, 2 * Math.PI);
+    ctx.fillStyle = "#0d0916";
+    ctx.fill();
+
+    const segs = getSegments();
+
+    // slices
+    segs.forEach((seg) => {
+      const start = wheelRotation + seg.startAngle - Math.PI / 2;
+      const end = start + seg.angle;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, R, start, end);
+      ctx.closePath();
+      ctx.fillStyle = seg.color;
+      ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,0.28)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // label
+      const mid = start + seg.angle / 2;
+      const lx = cx + Math.cos(mid) * R * 0.62;
+      const ly = cy + Math.sin(mid) * R * 0.62;
+      const size = Math.max(9, Math.min(15, 180 / segs.length));
+      ctx.save();
+      ctx.translate(lx, ly);
+      ctx.rotate(mid + Math.PI / 2);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.font = `bold ${size}px "Ubuntu Mono", monospace`;
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 4;
+      const lbl =
+        seg.label.length > 13 ? seg.label.slice(0, 12) + "…" : seg.label;
+      ctx.fillText(lbl, 0, 0);
+      ctx.restore();
+    });
+
+    // black spike at 12 o'clock — drawn before hub so hub covers the base
+    const triTip = cy - IR - (R - IR) * 0.1375;
+    const triBase = cy;
+    const triW = IR;
+    ctx.beginPath();
+    ctx.moveTo(cx, triTip);
+    ctx.lineTo(cx - triW, triBase);
+    ctx.lineTo(cx + triW, triBase);
+    ctx.closePath();
+    ctx.fillStyle = "#0d0916";
+    ctx.fill();
+
+    // hub
+    ctx.beginPath();
+    ctx.arc(cx, cy, IR, 0, 2 * Math.PI);
+    ctx.fillStyle = "#0d0916";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // center dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, IR * 0.18, 0, 2 * Math.PI);
+    ctx.fillStyle = "rgba(255,255,255,0.15)";
+    ctx.fill();
+  }
+
+  function setupCanvas() {
+    const size = canvas.parentElement.clientWidth;
+    if (!size) return;
+    canvas.width = canvas.height = Math.min(size, 400);
+    drawWheel();
+  }
+
+  canvas.addEventListener("click", (e) => {
+    if (spinning || items.length < 2) return;
+    const rect = canvas.getBoundingClientRect();
+    const scale = canvas.width / rect.width;
+    const dx = (e.clientX - rect.left) * scale - canvas.width / 2;
+    const dy = (e.clientY - rect.top) * scale - canvas.height / 2;
+    const IR = (canvas.width / 2 - 10) * 0.22;
+    if (Math.hypot(dx, dy) > IR) return;
+
+    spinning = true;
+    resultEl.textContent = "";
+
+    // pick winner (weighted)
+    const segs = getSegments();
+    const total = totalWeight();
+    let r = Math.random() * total,
+      c = 0;
+    let winner = segs[segs.length - 1];
+    for (const seg of segs) {
+      c += seg.weight;
+      if (r < c) {
+        winner = seg;
+        break;
+      }
     }
 
-    const emptyEl    = tab.querySelector('#dm-empty')
-    const convEl     = tab.querySelector('#dm-conversation')
-    const messagesEl = tab.querySelector('#dm-messages')
+    // target rotation so winner lands at top pointer
+    const targetAngle =
+      winner.startAngle + winner.angle * (0.2 + Math.random() * 0.6);
+    const targetMod =
+      ((-targetAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    const currentMod =
+      ((wheelRotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    let delta = targetMod - currentMod;
+    if (delta < 0.01) delta += 2 * Math.PI;
+    const finalRotation =
+      wheelRotation + delta + (6 + Math.floor(Math.random() * 4)) * 2 * Math.PI;
+    const startRotation = wheelRotation;
+    const duration = 4200 + Math.random() * 1400;
+    let startTime = null;
 
-    emptyEl.style.display = 'none'
-    convEl.style.display  = ''
-    messagesEl.innerHTML  = ''
-    currentDMLoadOlder    = null
-
-    const oldInput = tab.querySelector('#dm-input')
-    const oldSend  = tab.querySelector('#dm-send')
-    const newInput = oldInput.cloneNode(true)
-    const newSend  = oldSend.cloneNode(true)
-    oldInput.replaceWith(newInput)
-    oldSend.replaceWith(newSend)
-
-    const baseRef  = db.ref(`dms/${convId}/messages`)
-    const seenKeys = new Set()
-    let oldestTime  = Infinity
-    let newestTime  = 0
-    let loadingMore = false
-    let noMore      = false
-
-    async function loadOlder() {
-        if (loadingMore || noMore || oldestTime === Infinity) return
-        loadingMore = true
-        const loader = document.createElement('p')
-        loader.className = 'dm-loader'
-        loader.textContent = '· · ·'
-        messagesEl.insertBefore(loader, messagesEl.firstChild)
-        try {
-            const snap = await baseRef.orderByChild('time').endBefore(oldestTime).limitToLast(50).get()
-            const msgs = []
-            snap.forEach(s => msgs.push({ key: s.key, val: s.val() }))
-            loader.remove()
-            if (!msgs.length) { noMore = true; return }
-            const prevH = messagesEl.scrollHeight
-            msgs.reverse().forEach(({ key, val }) => {
-                if (seenKeys.has(key)) return
-                seenKeys.add(key)
-                if (val.time < oldestTime) oldestTime = val.time
-                val._key = key; val._refPath = `dms/${convId}/messages/${key}`
-                appendMessage(messagesEl, val, false, true)
-            })
-            messagesEl.scrollTop = messagesEl.scrollHeight - prevH
-        } finally { loadingMore = false }
+    function animate(ts) {
+      if (!startTime) startTime = ts;
+      const t = Math.min((ts - startTime) / duration, 1);
+      wheelRotation =
+        startRotation +
+        (finalRotation - startRotation) * (1 - Math.pow(1 - t, 4));
+      drawWheel();
+      if (t < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        wheelRotation = finalRotation;
+        drawWheel();
+        spinning = false;
+        resultEl.textContent = winner.label;
+      }
     }
+    requestAnimationFrame(animate);
+  });
 
-    if (!dmScrollListenerAdded) {
-        dmScrollListenerAdded = true
-        messagesEl.addEventListener('scroll', () => {
-            if (messagesEl.scrollTop < 60 && currentDMLoadOlder) currentDMLoadOlder()
-        })
+  // cursor: pointer over center hub
+  canvas.addEventListener("mousemove", (e) => {
+    if (spinning) {
+      canvas.style.cursor = "default";
+      return;
     }
-    currentDMLoadOlder = loadOlder
+    const rect = canvas.getBoundingClientRect();
+    const scale = canvas.width / rect.width;
+    const dx = (e.clientX - rect.left) * scale - canvas.width / 2;
+    const dy = (e.clientY - rect.top) * scale - canvas.height / 2;
+    const IR = (canvas.width / 2 - 10) * 0.22;
+    canvas.style.cursor = Math.hypot(dx, dy) <= IR ? "pointer" : "default";
+  });
 
-    baseRef.orderByChild('time').limitToLast(50).get().then(histSnap => {
-        if (gen !== dmGeneration) return
-        histSnap.forEach(s => {
-            seenKeys.add(s.key)
-            const v = s.val()
-            if (v.time < oldestTime) oldestTime = v.time
-            if (v.time > newestTime) newestTime = v.time
-            v._key = s.key; v._refPath = `dms/${convId}/messages/${s.key}`
-            appendMessage(messagesEl, v, false)
-        })
-        messagesEl.scrollTop = messagesEl.scrollHeight
+  function renderItems() {
+    itemsList.innerHTML = "";
+    items.forEach((item, idx) => {
+      const row = document.createElement("div");
+      row.className = "wheel-item-row";
 
-        const liveRef = db.ref(`dms/${convId}/messages`).orderByChild('time').startAt(newestTime + 1)
-        const cb = snap => {
-            if (seenKeys.has(snap.key)) return
-            seenKeys.add(snap.key)
-            const v = snap.val()
-            v._key = snap.key; v._refPath = `dms/${convId}/messages/${snap.key}`
-            appendMessage(messagesEl, v, true)
+      const dot = document.createElement("span");
+      dot.className = "wheel-item-color";
+      dot.style.background = WHEEL_COLORS[idx % WHEEL_COLORS.length];
+
+      const lbl = document.createElement("input");
+      lbl.className = "wheel-item-label";
+      lbl.type = "text";
+      lbl.value = item.label;
+      lbl.placeholder = "Label";
+      lbl.addEventListener("input", () => {
+        items[idx].label = lbl.value;
+        drawWheel();
+      });
+
+      const wWrap = document.createElement("div");
+      wWrap.className = "wheel-weight-wrap";
+      const wLabel = document.createElement("span");
+      wLabel.textContent = "×";
+      const wInput = document.createElement("input");
+      wInput.className = "wheel-item-weight";
+      wInput.type = "number";
+      wInput.min = "1";
+      wInput.max = "99";
+      wInput.value = item.weight;
+      wInput.addEventListener("input", () => {
+        const v = parseInt(wInput.value);
+        if (v > 0) {
+          items[idx].weight = v;
+          drawWheel();
         }
-        activeDMRef      = liveRef
-        activeDMCallback = cb
-        liveRef.on('child_added', cb)
+      });
+      wWrap.appendChild(wLabel);
+      wWrap.appendChild(wInput);
 
-        activeDMBaseRef = baseRef
-        baseRef.on('child_removed', snap => {
-            const el = messagesEl.querySelector(`[data-msg-key="${snap.key}"]`)
-            if (el) el.remove()
-            seenKeys.delete(snap.key)
-        })
-    })
+      const del = document.createElement("button");
+      del.className = "wheel-item-del";
+      del.textContent = "×";
+      del.disabled = items.length <= 2;
+      del.addEventListener("click", () => {
+        items.splice(idx, 1);
+        renderItems();
+        drawWheel();
+      });
 
-    async function sendDM() {
-        const text = newInput.value.trim()
-        if (!text || !auth.currentUser) return
-        newInput.value   = ''
-        newSend.disabled = true
-        try {
-            const uid = auth.currentUser.uid
-            const ps  = await db.ref(`profiles/${uid}`).get()
-            const p   = ps.val() || {}
-            await baseRef.push({
-                uid,
-                displayUsername: p.displayUsername || currentUsername || 'Anonymous',
-                nameColor:       p.nameColor || '#d24cff',
-                pfp:             p.pfp || '',
-                text,
-                time: firebase.database.ServerValue.TIMESTAMP,
-            })
-            await db.ref(`dms/${convId}`).update({
-                lastMessage: text,
-                lastTime:    firebase.database.ServerValue.TIMESTAMP,
-            })
-        } catch (err) {
-            console.error(err)
-            newInput.value = text
-        } finally {
-            newSend.disabled = false
-            newInput.focus()
-        }
-    }
+      row.appendChild(dot);
+      row.appendChild(lbl);
+      row.appendChild(wWrap);
+      row.appendChild(del);
+      itemsList.appendChild(row);
+    });
+  }
 
-    newSend.addEventListener('click', sendDM)
-    newInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendDM() } })
-    newInput.focus()
+  addBtn.addEventListener("click", () => {
+    items.push({ label: `Option ${items.length + 1}`, weight: 1 });
+    renderItems();
+    drawWheel();
+  });
+
+  titleInput.addEventListener("input", () => {
+    titleDisp.textContent = titleInput.value.trim() || "Wheel";
+  });
+
+  renderItems();
+  setupCanvas();
+  window.addEventListener("resize", setupCanvas);
 }
 
 // app cage
 function buildCage() {
-    const cage = document.createElement('div')
-    cage.id = 'Cage'
+  const cage = document.createElement("div");
+  cage.id = "Cage";
 
-    cage.innerHTML = `
+  cage.innerHTML = `
         <main id="tab-container"></main>
         <nav id="nav-main">
             <button id="search-button">
@@ -770,45 +1337,55 @@ function buildCage() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
             <input type="text" placeholder="Search...">
         </div>
-    `
+    `;
 
-    document.body.appendChild(cage)
+  document.body.appendChild(cage);
 
-    // tab sys
-    const tabContainer = cage.querySelector('#tab-container')
+  // tab sys
+  const tabContainer = cage.querySelector("#tab-container");
 
-    function buildTab(buttonSel, html, onFirstShow) {
-        const tab = document.createElement('div')
-        tab.className = 'tab-content'
-        tab.innerHTML = html
-        tab.style.display = 'none'
-        tabContainer.appendChild(tab)
+  function buildTab(buttonSel, html, onFirstShow) {
+    const tab = document.createElement("div");
+    tab.className = "tab-content";
+    tab.innerHTML = html;
+    tab.style.display = "none";
+    tabContainer.appendChild(tab);
 
-        let firstShow = true
-        cage.querySelector(buttonSel).addEventListener('click', () => {
-            tabContainer.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none')
-            cage.querySelectorAll('nav button').forEach(b => b.classList.remove('active'))
-            tab.style.display = ''
-            cage.querySelector(buttonSel).classList.add('active')
-            if (firstShow && onFirstShow) { firstShow = false; onFirstShow(tab) }
-            requestAnimationFrame(() => window.dispatchEvent(new Event('resize')))
-        })
+    let firstShow = true;
+    cage.querySelector(buttonSel).addEventListener("click", () => {
+      tabContainer
+        .querySelectorAll(".tab-content")
+        .forEach((t) => (t.style.display = "none"));
+      cage
+        .querySelectorAll("nav button")
+        .forEach((b) => b.classList.remove("active"));
+      tab.style.display = "";
+      cage.querySelector(buttonSel).classList.add("active");
+      if (firstShow && onFirstShow) {
+        firstShow = false;
+        onFirstShow(tab);
+      }
+      requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+    });
 
-        return tab
-    }
+    return tab;
+  }
 
-    // games tab
-    const cardHtml = GAMES.map(g =>
-        `<div class="game-card">
+  // games tab
+  const cardHtml = GAMES.map(
+    (g) =>
+      `<div class="game-card">
             <div class="game-card-top">
                 <span class="game-name">${g.name}</span>
                 <span class="game-desc">${g.desc}</span>
             </div>
             <a href="${g.url}" class="game-play">Play</a>
-        </div>`
-    ).join('')
+        </div>`,
+  ).join("");
 
-    const gamesTab = buildTab('#games-button', `
+  const gamesTab = buildTab(
+    "#games-button",
+    `
         <div id="featured">
             <div id="featured-content">
                 <div id="featured-inner">
@@ -827,11 +1404,14 @@ function buildCage() {
             <h3 id="catalogue-title">Games</h3>
             <div id="catalogue-grid">${cardHtml}</div>
         </section>
-    `)
+    `,
+  );
 
-    // wip tabs
-    function buildWIPTab(buttonSel) {
-        return buildTab(buttonSel, `
+  // wip tabs
+  function buildWIPTab(buttonSel) {
+    return buildTab(
+      buttonSel,
+      `
             <div id="wip-page">
                 <img src="https://mattavern.netlify.app/assets/mattavern.png" alt="MatTavern" id="wip-logo">
                 <div id="wip-label">
@@ -840,15 +1420,48 @@ function buildCage() {
                 </div>
                 <p>I apologize! This tab isn't quite ready yet...</p>
             </div>
-        `)
-    }
+        `,
+    );
+  }
 
-    buildWIPTab('#gas-button')
-    buildWIPTab('#groove-button')
-    buildWIPTab('.tools-button')
+  buildWIPTab("#gas-button");
+  buildWIPTab("#groove-button");
 
-    // chat tab
-    const chatTab = buildTab('.chat-button', `
+  buildTab(
+    ".tools-button",
+    `
+        <div id="tools-tab">
+            <div id="tools-container">
+                <div id="wheel-tool">
+                    <div id="wheel-panel">
+                        <h2 id="wheel-title-display">Wheel</h2>
+                        <div id="wheel-canvas-wrap">
+                            <canvas id="wheel-canvas"></canvas>
+                        </div>
+                        <p id="wheel-result"></p>
+                    </div>
+                    <div id="wheel-controls">
+                        <div class="wheel-ctrl-section">
+                            <label class="wheel-ctrl-label">Title</label>
+                            <input id="wheel-title-input" class="wheel-text-input" type="text" placeholder="Wheel title" value="Wheel">
+                        </div>
+                        <div class="wheel-ctrl-section">
+                            <label class="wheel-ctrl-label">Items</label>
+                            <div id="wheel-items-list"></div>
+                            <button id="wheel-add-btn">+ Add Item</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
+    (tab) => initWheelTool(tab),
+  );
+
+  // chat tab
+  const chatTab = buildTab(
+    ".chat-button",
+    `
         <div id="chat-panel">
             <div id="chat-header">
                 <div id="chat-header-content">
@@ -897,40 +1510,56 @@ function buildCage() {
                 </div>
             </div>
         </div>
-    `, tab => {
-        initParticles(tab.querySelector('#chat-header'), { count: 25, connectDist: 80, mouseDist: 100 })
-        initUniversalChat(tab)
-        initDMs(tab)
-    })
-    chatTab.id = 'chat-tab'
+    `,
+    (tab) => {
+      initParticles(tab.querySelector("#chat-header"), {
+        count: 25,
+        connectDist: 80,
+        mouseDist: 100,
+      });
+      initUniversalChat(tab);
+      initDMs(tab);
+    },
+  );
+  chatTab.id = "chat-tab";
 
-    // chat sub-nav switching
-    chatTab.querySelectorAll('.chat-subnav-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            chatTab.querySelectorAll('.chat-subnav-btn').forEach(b => b.classList.remove('active'))
-            chatTab.querySelectorAll('.chat-view').forEach(v => v.classList.remove('active'))
-            btn.classList.add('active')
-            chatTab.querySelector(`#chat-view-${btn.dataset.view}`).classList.add('active')
-        })
-    })
+  // chat sub-nav switching
+  chatTab.querySelectorAll(".chat-subnav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      chatTab
+        .querySelectorAll(".chat-subnav-btn")
+        .forEach((b) => b.classList.remove("active"));
+      chatTab
+        .querySelectorAll(".chat-view")
+        .forEach((v) => v.classList.remove("active"));
+      btn.classList.add("active");
+      chatTab
+        .querySelector(`#chat-view-${btn.dataset.view}`)
+        .classList.add("active");
+    });
+  });
 
-    openDM = async (otherUid) => {
-        const myUid = auth.currentUser?.uid
-        if (!myUid) return
-        const convId = [myUid, otherUid].sort().join('_')
-        await db.ref(`dms/${convId}/participants`).update({ [myUid]: true, [otherUid]: true })
-        db.ref(`user_dms/${myUid}/${convId}`).set(true)
-        db.ref(`user_dms/${otherUid}/${convId}`).set(true)
-        const modal = document.getElementById('profile-modal-overlay')
-        if (modal) modal.classList.remove('open')
-        cage.querySelector('.chat-button').click()
-        chatTab.querySelector('[data-view="dms"]').click()
-        activeDMConvId = convId
-        loadDMConversation(convId, otherUid, chatTab)
-    }
+  openDM = async (otherUid) => {
+    const myUid = auth.currentUser?.uid;
+    if (!myUid) return;
+    const convId = [myUid, otherUid].sort().join("_");
+    await db
+      .ref(`dms/${convId}/participants`)
+      .update({ [myUid]: true, [otherUid]: true });
+    db.ref(`user_dms/${myUid}/${convId}`).set(true);
+    db.ref(`user_dms/${otherUid}/${convId}`).set(true);
+    const modal = document.getElementById("profile-modal-overlay");
+    if (modal) modal.classList.remove("open");
+    cage.querySelector(".chat-button").click();
+    chatTab.querySelector('[data-view="dms"]').click();
+    activeDMConvId = convId;
+    loadDMConversation(convId, otherUid, chatTab);
+  };
 
-    // profile tab
-    buildTab('#profile-button', `
+  // profile tab
+  buildTab(
+    "#profile-button",
+    `
         <div id="profile-tab">
             <div id="profile-card">
                 <div id="profile-preview">
@@ -984,264 +1613,333 @@ function buildCage() {
                 </div>
             </div>
         </div>
-    `, async tab => {
-        const uid   = auth.currentUser.uid
-        const email = auth.currentUser.email
+    `,
+    async (tab) => {
+      const uid = auth.currentUser.uid;
+      const email = auth.currentUser.email;
 
-        const pfpPlaceholder = tab.querySelector('#profile-pfp-placeholder')
-        const pfpImg         = tab.querySelector('#profile-pfp-img')
-        const previewName    = tab.querySelector('#profile-preview-name')
-        const previewEmail   = tab.querySelector('#profile-preview-email')
-        const pfpInput       = tab.querySelector('#profile-pfp-input')
-        const usernameInput  = tab.querySelector('#profile-username-input')
-        const historyEl      = tab.querySelector('#profile-username-history')
-        const colorCustom    = tab.querySelector('#profile-color-custom')
-        const hexInput       = tab.querySelector('#profile-color-hex')
-        const bioInput       = tab.querySelector('#profile-bio-input')
-        const bioCount       = tab.querySelector('#profile-bio-count')
-        const saveBtn        = tab.querySelector('#profile-save-btn')
-        const msgEl          = tab.querySelector('#profile-msg')
+      const pfpPlaceholder = tab.querySelector("#profile-pfp-placeholder");
+      const pfpImg = tab.querySelector("#profile-pfp-img");
+      const previewName = tab.querySelector("#profile-preview-name");
+      const previewEmail = tab.querySelector("#profile-preview-email");
+      const pfpInput = tab.querySelector("#profile-pfp-input");
+      const usernameInput = tab.querySelector("#profile-username-input");
+      const historyEl = tab.querySelector("#profile-username-history");
+      const colorCustom = tab.querySelector("#profile-color-custom");
+      const hexInput = tab.querySelector("#profile-color-hex");
+      const bioInput = tab.querySelector("#profile-bio-input");
+      const bioCount = tab.querySelector("#profile-bio-count");
+      const saveBtn = tab.querySelector("#profile-save-btn");
+      const msgEl = tab.querySelector("#profile-msg");
 
-        const snap = await db.ref(`profiles/${uid}`).get()
-        const data = snap.val() || {}
+      const snap = await db.ref(`profiles/${uid}`).get();
+      const data = snap.val() || {};
 
-        const initUsername = data.displayUsername || currentUsername || ''
-        const initPfp      = data.pfp      || ''
-        const initColor    = data.nameColor || '#d24cff'
-        const initBio      = data.bio       || ''
-        let history        = Array.isArray(data.usernameHistory) ? [...data.usernameHistory] : [initUsername]
+      const initUsername = data.displayUsername || currentUsername || "";
+      const initPfp = data.pfp || "";
+      const initColor = data.nameColor || "#d24cff";
+      const initBio = data.bio || "";
+      let history = Array.isArray(data.usernameHistory)
+        ? [...data.usernameHistory]
+        : [initUsername];
 
-        pfpInput.value       = initPfp
-        usernameInput.value  = initUsername
-        colorCustom.value    = initColor
-        bioInput.value       = initBio
-        bioCount.textContent = `${initBio.length} / 300`
-        previewEmail.textContent = email
+      pfpInput.value = initPfp;
+      usernameInput.value = initUsername;
+      colorCustom.value = initColor;
+      bioInput.value = initBio;
+      bioCount.textContent = `${initBio.length} / 300`;
+      previewEmail.textContent = email;
 
-        function updatePfp(url) {
-            if (url) {
-                pfpImg.src = url
-                pfpImg.style.display = ''
-                pfpPlaceholder.style.display = 'none'
-            } else {
-                pfpImg.style.display = 'none'
-                pfpPlaceholder.style.display = ''
-            }
+      function updatePfp(url) {
+        if (url) {
+          pfpImg.src = url;
+          pfpImg.style.display = "";
+          pfpPlaceholder.style.display = "none";
+        } else {
+          pfpImg.style.display = "none";
+          pfpPlaceholder.style.display = "";
+        }
+      }
+
+      pfpImg.onerror = () => {
+        pfpImg.style.display = "none";
+        pfpPlaceholder.style.display = "";
+      };
+
+      function setColor(color) {
+        tab
+          .querySelectorAll(".color-swatch")
+          .forEach((s) =>
+            s.classList.toggle("selected", s.dataset.color === color),
+          );
+        colorCustom.value = color;
+        hexInput.value = color;
+        previewName.style.color = color;
+      }
+
+      function renderHistory() {
+        const current = usernameInput.value.trim();
+        const older = [...new Set(history)].filter((u) => u !== current);
+        historyEl.textContent = older.length ? `Past: ${older.join(", ")}` : "";
+      }
+
+      previewName.textContent = initUsername;
+      previewName.style.color = initColor;
+      updatePfp(initPfp);
+      setColor(initColor);
+      renderHistory();
+
+      pfpInput.addEventListener("input", () =>
+        updatePfp(pfpInput.value.trim()),
+      );
+
+      usernameInput.addEventListener("input", () => {
+        previewName.textContent = usernameInput.value.trim() || initUsername;
+        renderHistory();
+      });
+
+      tab.querySelectorAll(".color-swatch").forEach((sw) => {
+        sw.addEventListener("click", () => setColor(sw.dataset.color));
+      });
+
+      colorCustom.addEventListener("input", () => {
+        tab
+          .querySelectorAll(".color-swatch")
+          .forEach((s) => s.classList.remove("selected"));
+        hexInput.value = colorCustom.value;
+        previewName.style.color = colorCustom.value;
+      });
+
+      hexInput.addEventListener("input", () => {
+        const val = hexInput.value.trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+          tab
+            .querySelectorAll(".color-swatch")
+            .forEach((s) => s.classList.remove("selected"));
+          colorCustom.value = val;
+          previewName.style.color = val;
+        }
+      });
+
+      bioInput.addEventListener("input", () => {
+        bioCount.textContent = `${bioInput.value.length} / 300`;
+      });
+
+      saveBtn.addEventListener("click", async () => {
+        const newUsername = usernameInput.value.trim();
+        const newPfp = pfpInput.value.trim();
+        const newColor = colorCustom.value;
+        const newBio = bioInput.value.trim();
+
+        if (!newUsername) {
+          msgEl.textContent = "Username cannot be empty.";
+          return;
         }
 
-        pfpImg.onerror = () => { pfpImg.style.display = 'none'; pfpPlaceholder.style.display = '' }
+        saveBtn.disabled = true;
+        msgEl.textContent = "";
 
-        function setColor(color) {
-            tab.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('selected', s.dataset.color === color))
-            colorCustom.value  = color
-            hexInput.value     = color
-            previewName.style.color = color
+        try {
+          const newHistory = [
+            ...new Set([
+              ...history.filter((u) => u !== newUsername),
+              newUsername,
+            ]),
+          ];
+          await db.ref(`profiles/${uid}`).update({
+            displayUsername: newUsername,
+            pfp: newPfp,
+            nameColor: newColor,
+            bio: newBio,
+            usernameHistory: newHistory,
+          });
+          history = newHistory;
+          renderHistory();
+          msgEl.textContent = "Saved!";
+          setTimeout(() => {
+            msgEl.textContent = "";
+          }, 3000);
+        } catch (err) {
+          console.error(err);
+          msgEl.textContent = "Failed to save.";
+        } finally {
+          saveBtn.disabled = false;
         }
+      });
+    },
+  );
 
-        function renderHistory() {
-            const current = usernameInput.value.trim()
-            const older = [...new Set(history)].filter(u => u !== current)
-            historyEl.textContent = older.length ? `Past: ${older.join(', ')}` : ''
-        }
+  // default tab
+  gamesTab.style.display = "";
+  cage.querySelector("#games-button").classList.add("active");
 
-        previewName.textContent  = initUsername
-        previewName.style.color  = initColor
-        updatePfp(initPfp)
-        setColor(initColor)
-        renderHistory()
+  cage
+    .querySelector("#logout-button")
+    .addEventListener("click", () => auth.signOut());
 
-        pfpInput.addEventListener('input', () => updatePfp(pfpInput.value.trim()))
+  const stop = initParticles(cage.querySelector("#featured"));
+  initSearch(cage);
 
-        usernameInput.addEventListener('input', () => {
-            previewName.textContent = usernameInput.value.trim() || initUsername
-            renderHistory()
-        })
-
-        tab.querySelectorAll('.color-swatch').forEach(sw => {
-            sw.addEventListener('click', () => setColor(sw.dataset.color))
-        })
-
-        colorCustom.addEventListener('input', () => {
-            tab.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'))
-            hexInput.value = colorCustom.value
-            previewName.style.color = colorCustom.value
-        })
-
-        hexInput.addEventListener('input', () => {
-            const val = hexInput.value.trim()
-            if (/^#[0-9a-fA-F]{6}$/.test(val)) {
-                tab.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'))
-                colorCustom.value = val
-                previewName.style.color = val
-            }
-        })
-
-        bioInput.addEventListener('input', () => {
-            bioCount.textContent = `${bioInput.value.length} / 300`
-        })
-
-        saveBtn.addEventListener('click', async () => {
-            const newUsername = usernameInput.value.trim()
-            const newPfp      = pfpInput.value.trim()
-            const newColor    = colorCustom.value
-            const newBio      = bioInput.value.trim()
-
-            if (!newUsername) { msgEl.textContent = 'Username cannot be empty.'; return }
-
-            saveBtn.disabled = true
-            msgEl.textContent = ''
-
-            try {
-                const newHistory = [...new Set([...history.filter(u => u !== newUsername), newUsername])]
-                await db.ref(`profiles/${uid}`).update({
-                    displayUsername: newUsername,
-                    pfp:             newPfp,
-                    nameColor:       newColor,
-                    bio:             newBio,
-                    usernameHistory: newHistory,
-                })
-                history = newHistory
-                renderHistory()
-                msgEl.textContent = 'Saved!'
-                setTimeout(() => { msgEl.textContent = '' }, 3000)
-            } catch (err) {
-                console.error(err)
-                msgEl.textContent = 'Failed to save.'
-            } finally {
-                saveBtn.disabled = false
-            }
-        })
-    })
-
-    // default tab
-    gamesTab.style.display = ''
-    cage.querySelector('#games-button').classList.add('active')
-
-    cage.querySelector('#logout-button').addEventListener('click', () => auth.signOut())
-
-    const stop = initParticles(cage.querySelector('#featured'))
-    initSearch(cage)
-
-    return { el: cage, stop }
+  return { el: cage, stop };
 }
 
 // searching
 function initSearch(cage) {
-    const searchBar   = cage.querySelector('#search-bar')
-    const searchInput = searchBar.querySelector('input')
-    const searchBtn   = cage.querySelector('#search-button')
+  const searchBar = cage.querySelector("#search-bar");
+  const searchInput = searchBar.querySelector("input");
+  const searchBtn = cage.querySelector("#search-button");
 
-    const games = Array.from(cage.querySelectorAll('.game-card')).map(card => ({
-        el:   card,
-        name: card.querySelector('.game-name').textContent,
-        desc: card.querySelector('.game-desc').textContent,
-    }))
+  const games = Array.from(cage.querySelectorAll(".game-card")).map((card) => ({
+    el: card,
+    name: card.querySelector(".game-name").textContent,
+    desc: card.querySelector(".game-desc").textContent,
+  }));
 
-    const fuse = new Fuse(games, { keys: ['name', 'desc'], threshold: 0.4 })
+  const fuse = new Fuse(games, { keys: ["name", "desc"], threshold: 0.4 });
 
-    function hideCard(el) {
-        el.classList.add('card-out')
-        el.addEventListener('transitionend', () => {
-            if (el.classList.contains('card-out')) el.style.display = 'none'
-        }, { once: true })
+  function hideCard(el) {
+    el.classList.add("card-out");
+    el.addEventListener(
+      "transitionend",
+      () => {
+        if (el.classList.contains("card-out")) el.style.display = "none";
+      },
+      { once: true },
+    );
+  }
+
+  function showCard(el) {
+    el.style.display = "";
+    el.offsetHeight;
+    el.classList.remove("card-out");
+  }
+  function showAll() {
+    games.forEach((g) => showCard(g.el));
+  }
+
+  function filter(query) {
+    if (!query) {
+      showAll();
+      return;
     }
+    const hits = new Set(fuse.search(query).map((r) => r.item.el));
+    games.forEach((g) => (hits.has(g.el) ? showCard(g.el) : hideCard(g.el)));
+  }
 
-    function showCard(el) { el.style.display = ''; el.offsetHeight; el.classList.remove('card-out') }
-    function showAll() { games.forEach(g => showCard(g.el)) }
+  function openSearch() {
+    searchBar.classList.add("open");
+    searchInput.focus();
+  }
+  function closeSearch() {
+    searchBar.classList.remove("open");
+    searchInput.value = "";
+    showAll();
+  }
 
-    function filter(query) {
-        if (!query) { showAll(); return }
-        const hits = new Set(fuse.search(query).map(r => r.item.el))
-        games.forEach(g => hits.has(g.el) ? showCard(g.el) : hideCard(g.el))
-    }
+  searchBtn.addEventListener("click", () =>
+    searchBar.classList.contains("open") ? closeSearch() : openSearch(),
+  );
+  searchInput.addEventListener("input", (e) => filter(e.target.value.trim()));
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeSearch();
+  });
 
-    function openSearch()  { searchBar.classList.add('open'); searchInput.focus() }
-    function closeSearch() { searchBar.classList.remove('open'); searchInput.value = ''; showAll() }
-
-    searchBtn.addEventListener('click', () => searchBar.classList.contains('open') ? closeSearch() : openSearch())
-    searchInput.addEventListener('input', e => filter(e.target.value.trim()))
-    searchInput.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch() })
-
-    document.addEventListener('pointerdown', e => {
-        if (!searchBar.classList.contains('open')) return
-        if (!searchBar.contains(e.target) && !searchBtn.contains(e.target)) closeSearch()
-    })
+  document.addEventListener("pointerdown", (e) => {
+    if (!searchBar.classList.contains("open")) return;
+    if (!searchBar.contains(e.target) && !searchBtn.contains(e.target))
+      closeSearch();
+  });
 }
 
 // app initialization
-let currentUsername = null
-let loginInst = null
-let cageInst  = null
+let currentUsername = null;
+let loginInst = null;
+let cageInst = null;
 
 // dm state
-let openDM              = null
-let activeDMConvId      = null
-let activeDMRef         = null
-let activeDMCallback    = null
-let dmGeneration        = 0
-let currentDMLoadOlder  = null
-let dmScrollListenerAdded = false
-let userDMsRef          = null
-let pendingDMs          = []
-let activeDMBaseRef     = null
-let isAdmin             = false
+let openDM = null;
+let activeDMConvId = null;
+let activeDMRef = null;
+let activeDMCallback = null;
+let dmGeneration = 0;
+let currentDMLoadOlder = null;
+let dmScrollListenerAdded = false;
+let userDMsRef = null;
+let pendingDMs = [];
+let activeDMBaseRef = null;
+let isAdmin = false;
 
 // profile modal listener
-let profileModalRef     = null
-let profileModalCb      = null
+let profileModalRef = null;
+let profileModalCb = null;
 
-auth.onAuthStateChanged(async user => {
-    if (user) {
-        if (!currentUsername) {
-            const snap = await db.ref(`uid_to_username/${user.uid}`).get()
-            currentUsername = snap.val()
-        }
-
-        // Admin check
-        const adminSnap = await db.ref(`admins/${user.uid}`).get()
-        isAdmin = adminSnap.val() === true
-
-        // Start listening for new DMs immediately — not gated on chat tab being open
-        if (!userDMsRef) {
-            const myUid = user.uid
-            userDMsRef = db.ref(`user_dms/${myUid}`)
-            userDMsRef.on('child_added', snap => {
-                const convId   = snap.key
-                const otherUid = convId.split('_').find(u => u !== myUid) ?? convId.split('_')[0]
-                const sidebar  = document.querySelector('#dm-sidebar')
-                const chatTabEl = document.querySelector('#chat-tab')
-                if (sidebar && chatTabEl) {
-                    addDMSidebarItem(sidebar, convId, otherUid, chatTabEl)
-                } else {
-                    pendingDMs.push({ convId, otherUid })
-                }
-            })
-        }
-
-        if (loginInst) { loginInst.stop(); loginInst.el.remove(); loginInst = null }
-        if (!cageInst) cageInst = buildCage()
-    } else {
-        currentUsername = null
-        openDM = null
-        activeDMConvId = null
-        if (activeDMRef && activeDMCallback) {
-            activeDMRef.off('child_added', activeDMCallback)
-            activeDMRef = null
-            activeDMCallback = null
-        }
-        if (userDMsRef) { userDMsRef.off(); userDMsRef = null }
-        if (activeDMBaseRef) { activeDMBaseRef.off('child_removed'); activeDMBaseRef = null }
-        isAdmin = false
-        if (profileModalRef && profileModalCb) {
-            profileModalRef.off('value', profileModalCb)
-            profileModalRef = null
-            profileModalCb  = null
-        }
-        pendingDMs = []
-        dmGeneration++
-        currentDMLoadOlder = null
-        dmScrollListenerAdded = false
-        if (cageInst) { cageInst.stop(); cageInst.el.remove(); cageInst = null }
-        if (!loginInst) loginInst = buildLogin()
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    if (!currentUsername) {
+      const snap = await db.ref(`uid_to_username/${user.uid}`).get();
+      currentUsername = snap.val();
     }
-})
+
+    // Admin check
+    const adminSnap = await db.ref(`admins/${user.uid}`).get();
+    isAdmin = adminSnap.val() === true;
+
+    // Start listening for new DMs immediately — not gated on chat tab being open
+    if (!userDMsRef) {
+      const myUid = user.uid;
+      userDMsRef = db.ref(`user_dms/${myUid}`);
+      userDMsRef.on("child_added", (snap) => {
+        const convId = snap.key;
+        const otherUid =
+          convId.split("_").find((u) => u !== myUid) ?? convId.split("_")[0];
+        const sidebar = document.querySelector("#dm-sidebar");
+        const chatTabEl = document.querySelector("#chat-tab");
+        if (sidebar && chatTabEl) {
+          addDMSidebarItem(sidebar, convId, otherUid, chatTabEl);
+        } else {
+          pendingDMs.push({ convId, otherUid });
+        }
+      });
+    }
+
+    if (loginInst) {
+      loginInst.stop();
+      loginInst.el.remove();
+      loginInst = null;
+    }
+    if (!cageInst) cageInst = buildCage();
+  } else {
+    currentUsername = null;
+    openDM = null;
+    activeDMConvId = null;
+    if (activeDMRef && activeDMCallback) {
+      activeDMRef.off("child_added", activeDMCallback);
+      activeDMRef = null;
+      activeDMCallback = null;
+    }
+    if (userDMsRef) {
+      userDMsRef.off();
+      userDMsRef = null;
+    }
+    if (activeDMBaseRef) {
+      activeDMBaseRef.off("child_removed");
+      activeDMBaseRef = null;
+    }
+    isAdmin = false;
+    if (profileModalRef && profileModalCb) {
+      profileModalRef.off("value", profileModalCb);
+      profileModalRef = null;
+      profileModalCb = null;
+    }
+    pendingDMs = [];
+    dmGeneration++;
+    currentDMLoadOlder = null;
+    dmScrollListenerAdded = false;
+    if (cageInst) {
+      cageInst.stop();
+      cageInst.el.remove();
+      cageInst = null;
+    }
+    if (!loginInst) loginInst = buildLogin();
+  }
+});
