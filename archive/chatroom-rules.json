@@ -1,0 +1,35 @@
+{
+    "rules": {
+      ".read": false,
+      ".write": false,
+
+      "chatroom_access_code": {
+        ".read": false,
+        ".write": false
+      },
+
+      "users": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          "accessAttempt": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+
+      "messages": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('accessAttempt').val() === root.child('chatroom_access_code').val()",
+        ".indexOn": ["time"],
+
+        "$msgId": {
+          ".write": "auth != null && !data.exists() && root.child('users').child(auth.uid).child('accessAttempt').val() === root.child('chatroom_access_code').val()",
+          ".validate": "newData.hasChildren(['uid','name','text','time']) && newData.child('uid').isString() && newData.child('uid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 40 && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 500 && newData.child('time').isNumber()"
+        }
+      }
+    }
+  } 
