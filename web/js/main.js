@@ -1,45 +1,85 @@
-import { tsParticles } from "@tsparticles/engine"
-import { loadSlim } from "@tsparticles/slim"
 import Fuse from "fuse.js"
 
-await loadSlim(tsParticles)
+;(function initParticles() {
+    const container = document.getElementById('featured')
+    if (!container) return
 
-await tsParticles.load({
-    id: "featured",
-    options: {
-        fullScreen: { enable: false },
-        particles: {
-            number: { value: 80 },
-            color: { value: "#9d7dff" },
-            opacity: { value: 0.6 },
-            size: { value: 2 },
-            move: { enable: true, speed: 1.8, outModes: { default: "bounce" } },
-            links: {
-                enable: true,
-                distance: 200,
-                color: "#7b6cf6",
-                opacity: 0.25,
-                width: 1.2
+    const canvas = document.createElement('canvas')
+    canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;'
+    container.prepend(canvas)
+
+    const ctx = canvas.getContext('2d')
+    let W, H, particles
+    const mouse = { x: null, y: null }
+
+    function resize() {
+        const r = container.getBoundingClientRect()
+        W = canvas.width  = r.width
+        H = canvas.height = r.height
+    }
+
+    function rand(a, b) { return Math.random() * (b - a) + a }
+
+    function spawn() {
+        particles = Array.from({ length: 80 }, () => ({
+            x: rand(0, W), y: rand(0, H),
+            vx: rand(-1.8, 1.8), vy: rand(-1.8, 1.8),
+        }))
+    }
+
+    function tick() {
+        ctx.clearRect(0, 0, W, H)
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i]
+            p.x += p.vx; p.y += p.vy
+            if (p.x < 0 || p.x > W) p.vx *= -1
+            if (p.y < 0 || p.y > H) p.vy *= -1
+
+            ctx.beginPath()
+            ctx.arc(p.x, p.y, 2, 0, Math.PI * 2)
+            ctx.fillStyle = 'rgba(157,125,255,0.6)'
+            ctx.fill()
+
+            for (let j = i + 1; j < particles.length; j++) {
+                const q = particles[j]
+                const dx = p.x - q.x, dy = p.y - q.y
+                const d = Math.sqrt(dx*dx + dy*dy)
+                if (d < 200) {
+                    ctx.beginPath()
+                    ctx.moveTo(p.x, p.y)
+                    ctx.lineTo(q.x, q.y)
+                    ctx.strokeStyle = `rgba(123,108,246,${0.25*(1-d/200)})`
+                    ctx.lineWidth = 1.2
+                    ctx.stroke()
+                }
             }
-        },
-        interactivity: {
-            events: {
-                onHover: { enable: true, mode: ["grab", "bubble"] }
-            },
-            modes: {
-                grab: {
-                    distance: 250,
-                    links: { opacity: 0.4 }
-                },
-                bubble: {
-                    distance: 200,
-                    size: 4,
-                    opacity: 0.6
+
+            if (mouse.x !== null) {
+                const dx = p.x - mouse.x, dy = p.y - mouse.y
+                const d = Math.sqrt(dx*dx + dy*dy)
+                if (d < 250) {
+                    ctx.beginPath()
+                    ctx.moveTo(p.x, p.y)
+                    ctx.lineTo(mouse.x, mouse.y)
+                    ctx.strokeStyle = `rgba(123,108,246,${0.4*(1-d/250)})`
+                    ctx.lineWidth = 1
+                    ctx.stroke()
                 }
             }
         }
+        requestAnimationFrame(tick)
     }
-})
+
+    container.addEventListener('mousemove', e => {
+        const r = container.getBoundingClientRect()
+        mouse.x = e.clientX - r.left
+        mouse.y = e.clientY - r.top
+    })
+    container.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null })
+    window.addEventListener('resize', () => { resize(); spawn() })
+
+    resize(); spawn(); tick()
+})()
 
 // --- Search ---
 const searchBar   = document.getElementById('search-bar')

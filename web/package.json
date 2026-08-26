@@ -12,8 +12,6 @@
     "vite-plugin-singlefile": "^2.3.3"
   },
   "dependencies": {
-    "@tsparticles/engine": "^4.3.2",
-    "@tsparticles/slim": "^4.3.2",
     "fuse.js": "^7.5.0",
     "tsparticles": "^4.3.2"
   }
