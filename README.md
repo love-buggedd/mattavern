@@ -35,5 +35,6 @@ All of these ports will be done exclusively by me.
 
 ## Credit
 Thank you [`gn-math`](https://github.com/genizy/web-port/tree/main) contributors for all the external web-ports.
+Credit to Anthropic's Claude for assisting in the backend's development when I got stumped.
 
 All other credit goes to Matt R. `love-buggedd`.
