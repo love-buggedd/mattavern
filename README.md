@@ -17,7 +17,7 @@ Mat Tavern is a web-porting hub that's used by my personal friends and myself. I
 - Wheel
     > A customizable wheel that you can spin for random selection, by default has all available games.
 - Chatroom
-    > Allows other Mat Tavern users to communicate with you in a universal chat.
+    > Allows other Mat Tavern users to communicate with you in a universal chat and DM you if they choose.
 
 ### Future Features
 All of these ports will be done exclusively by me.
@@ -26,8 +26,6 @@ All of these ports will be done exclusively by me.
     > A library of exclusively steam games.
 - Groove
     > Another library for all games that aren't on steam.
-- Chat Tabs
-    > Allows for DMs alongside that Universal chat.
 
 ## Emulation Tools
 - PEMSA
