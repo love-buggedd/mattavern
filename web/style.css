@@ -428,6 +428,7 @@ hr {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95);
 }
 
+/*
 #featured-button button {
   background-color: #d24cff;
   color: #fff;
@@ -443,6 +444,26 @@ hr {
 
 #featured-button button:hover {
   background-color: #a435ff;
+  transform: scale(1.1);
+}
+*/
+
+/* Unavailable Version */
+#featured-button button {
+  background-color: #5c5c5c;
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.5rem 6rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: "Ubuntu Mono", monospace;
+  transition: all 0.2s ease;
+}
+
+#featured-button button:hover {
+  background-color: #444444;
   transform: scale(1.1);
 }
 
