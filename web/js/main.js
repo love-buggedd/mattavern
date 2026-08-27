@@ -1413,7 +1413,7 @@ function buildCage() {
                     <div id="featured-right">
                         <div id="featured-title"><h2>Content Deleted</h2></div>
                         <div id="featured-description"><p>I failed to port the game, and have continued to fail to port other games.</p></div>
-                        <div id="featured-button"><a href="https://mattavern.netlify.app/web/dist/pico8/player.html" class="featured-play-link"><button>Unavailable</button></a></div>
+                        <div id="featured-button"><button disabled>Unavailable</button></div>
                     </div>
                 </div>
             </div>
