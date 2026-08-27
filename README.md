@@ -29,12 +29,15 @@ All of these ports will be done exclusively by me.
 
 ## Emulation Tools
 - PEMSA
-    > This includes Classic Slipways and other `.p8` games.
+
+*Work in Progress*
 - Unity
 - Godot
 
 ## Credit
 Thank you [`gn-math`](https://github.com/genizy/web-port/tree/main) contributors for all the external web-ports.
+Credit to Anthropic's Claude for assisting in the backend's development when I got stumped.
+
 Credit to Anthropic's Claude for assisting in the backend's development when I got stumped.
 
 All other credit goes to Matt R. `love-buggedd`.
