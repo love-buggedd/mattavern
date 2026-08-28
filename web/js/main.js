@@ -15,213 +15,306 @@ firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.database();
 
-// PICO-8 games made by Matt.
-// To add a new game: export as game.p8.png from PICO-8, drop it in web/public/pico8/carts/,
-// then add an entry here with url: "/pico8/player.html?cart=/pico8/carts/game.p8.png"
-const PICO8_GAMES = [
-  // { name: "My First Game", desc: "...", url: "/pico8/player.html?cart=/pico8/carts/myfirstgame.p8.png" },
-];
-
 // game data
 const GAMES = [
   {
     name: "ADGAC",
-    desc: "A quirky defense game starring crabs fighting off waves of enemies.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/lprktbhxokaetxuhnh.html",
   },
   {
     name: "Anton Blast",
-    desc: "A high-energy action platformer with explosive mechanics and nonstop chaos.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/xxj.html",
   },
   {
     name: "Baldi Plus",
-    desc: "An expanded take on Baldi's Basics with new items, characters, and surprises.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/mhybkqfjutvztmwsrcvlh.html",
   },
   {
     name: "Baldi Remaster",
-    desc: "The classic edutainment horror game rebuilt with updated visuals and gameplay.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/dspea.html",
   },
   {
+    name: "Balls and Bricks",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/shajlo.html",
+  },
+  {
+    name: "Basket Random",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/guiavbie.html",
+  },
+  {
     name: "Bendy",
-    desc: "Explore a decaying cartoon animation studio hiding sinister, inky secrets.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/voqqslhfqwrgjesmoskvf.html",
   },
   {
     name: "Blood Money",
-    desc: "A gritty action game set in a brutal world of crime and high-stakes deals.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/ezfuhixglg.html",
   },
   {
+    name: "Boxing Random",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/iopa.html",
+  },
+  {
     name: "Bridge Race",
-    desc: "Race to collect tiles and build bridges faster than your rivals to win.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/lvkvuvjddfaqefuhoykpbjo.html",
   },
   {
     name: "Buckshot Roulette",
-    desc: "A tense horror game of chance — load the shotgun, take your turn, survive.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/rmdcxnngcyobfbhyobvi.html",
   },
   {
+    name: "Cappy Cafe",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/wctvyopiopsvhuio.html",
+  },
+  {
     name: "Celeste",
-    desc: "A precise platformer about climbing a mountain and confronting your inner demons.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/r.html",
   },
   {
+    name: "Chop It Up (Driving)",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/cupavopvoiosgabji.html",
+  },
+  {
     name: "Class of '09",
-    desc: "A darkly comedic visual novel navigating the social hellscape of high school.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/eywuebqmvrvmdgdoj.html",
   },
   {
     name: "Clover Pit",
-    desc: "A fast action game dropping you into a dangerous pit where luck meets skill.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/iduwssuflrmqokamtdoqnh.html",
   },
   {
     name: "Dead Plate",
-    desc: "A short RPG Maker horror game about a deadly dinner invitation gone wrong.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/exzuyfiiruktyohwh.html",
   },
   {
     name: "DELTARUNE",
-    desc: "Kris and Susie fall into a mysterious dark world hidden beneath their school.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/hbibw.html",
   },
   {
     name: "Don't Take This Cat Home",
-    desc: "A short narrative about the bittersweet bond between a person and a stray cat.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/s.html",
   },
   {
+    name: "Dragon Fist",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/ehbujiv.html",
+  },
+  {
+    name: "Duck Clicker",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/tgerfhjnuik.html",
+  },
+  {
     name: "Dumb Ways to Die",
-    desc: "Hilarious minigames based on the viral safety campaign. Don't die stupidly.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/gkpeurfunz.html",
   },
   {
+    name: "Dune Dash",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/huiogahbgijanga.html",
+  },
+  {
     name: "FNAE",
-    desc: "A fan-made Five Nights at Freddy's experience with its own twist on the lore.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/gjmjmbgdkxfhtcjftzqzir.html",
   },
   {
     name: "FNAF 1",
-    desc: "Survive five nights as a security guard at Freddy Fazbear's haunted pizzeria.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/nllkxxdrwdcchhfsnt.html",
   },
   {
     name: "FNAF 2",
-    desc: "Return to Freddy's with new animatronics and no doors to hide behind.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/rc.html",
   },
   {
     name: "FNAF 3",
-    desc: "A horror experience set 30 years after the original restaurant's dark closure.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/gpapkmmfprdsnzmdyrj.html",
   },
   {
     name: "FNAF 4",
-    desc: "Face your nightmares alone in your bedroom on the longest final night.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/y.html",
   },
   {
     name: "FNAF 4: Halloween Ed.",
-    desc: "Alone in your bedroom and it's even more spooky than before!",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/ldknouazxagjmellnrfaji.html",
   },
   {
+    name: "FNAF World",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/uzpfdcrsagpfuprgsj.html",
+  },
+  {
     name: "FNAF: Pizza Sim",
-    desc: "Manage a pizzeria by day, survive the night in this comedic series finale.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/gjcgrysvapjcfgwnzoofo.html",
   },
   {
     name: "FNAF: Sister Location",
-    desc: "Work underground alongside Circus Baby and her deeply unsettling crew.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/xelvomnn.html",
   },
   {
     name: "FNAF: UCN",
-    desc: "Face 50 animatronics in the ultimate challenge from William Afton's perspective.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/dedyfchzvbxducqmuxpv.html",
   },
   {
-    name: "FNAF World",
-    desc: "An RPG spin-off where Freddy and friends battle through a colorful overworld.",
-    url: "https://mattavern.netlify.app/ports/external-ports/uzpfdcrsagpfuprgsj.html",
+    name: "Getaway Shooter",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/hjiopas.html",
+  },
+  {
+    name: "Gun Mayhem",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/kadcafhnuilunkih.html",
+  },
+  {
+    name: "Gun Mayhem 2",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/tvywounio.html",
+  },
+  {
+    name: "Gun Mayhem Redux",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/bsgvios.html",
   },
   {
     name: "Hollow Knight",
-    desc: "Explore a vast, crumbling underground kingdom of bugs in this dark metroidvania.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/yamyc.html",
   },
   {
     name: "Human Expenditure Program",
-    desc: "A darkly comedic game about just how disposable workers really are.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/oadmhknhjmpecnc.html",
   },
   {
     name: "Iron Lung",
-    desc: "Pilot a submarine through a sea of blood on a world where the oceans are gone.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/htrwpuffpvwehmzrnyxci.html",
   },
   {
     name: "Kindergarten",
-    desc: "A darkly humorous point-and-click set in the world's most dangerous school.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/mt.html",
   },
   {
     name: "Minesweeper",
-    desc: "The timeless puzzle classic — uncover every safe tile without hitting a mine.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/xhcsjmkfdznflljsavk.html",
   },
   {
     name: "Peaks of Yore",
-    desc: "A relaxing old-book-styled climbing game about conquering majestic mountain peaks.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/jkzmrfnxxptzeieykpc.html",
   },
   {
     name: "People Playground",
-    desc: "A physics sandbox with no rules — experiment on ragdolls however you see fit.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/txguhutdbvmxrzqozfnuqdcc.html",
   },
   {
+    name: "Pico School",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/wsefcvbhsblfidbngc.html",
+  },
+  {
     name: "Raldi",
-    desc: "A fan-made Baldi's Basics parody with its own strange humor and mechanics.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/dlryazywezvr.html",
   },
   {
     name: "REPO",
-    desc: "Cooperatively retrieve haunted objects from dangerous locations — for profit.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/xifhvwwglvigdpiloyfcny.html",
   },
   {
+    name: "Rooftop Run",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/bjs.html",
+  },
+  {
     name: "Saihate Station",
-    desc: "A short atmospheric horror game set at the end of an abandoned train line.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/ydlpoidubyzn.html",
   },
   {
+    name: "Sandtrix",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/zghhj.html",
+  },
+  {
     name: "Schoolboy Runaway",
-    desc: "Escape from school at all costs in this frantic action runner.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/eduibduj.html",
   },
   {
+    name: "Slope",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/ahjiopg.html",
+  },
+  {
+    name: "Soccer Random",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/ghaujibnf.html",
+  },
+  {
     name: "Soft & Wet",
-    desc: "A stylish action game heavily inspired by JoJo's Bizarre Adventure.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/hibscdfnxjiqvwszwn.html",
   },
   {
+    name: "Tetris",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/thui.html",
+  },
+  {
     name: "ULTRAKILL",
-    desc: "A retro ultrafast FPS where you drain blood from enemies to stay alive.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/fyebebclefubo.html",
   },
   {
     name: "Undertale",
-    desc: "An RPG where you can befriend, fight, or spare every monster you encounter.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/aubkfkp.html",
   },
   {
+    name: "Volley Random",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/vahuioghia.html",
+  },
+  {
+    name: "We Become What We Behold",
+    desc: "No description.",
+    url: "https://mattavern.netlify.app/ports/external-ports/cbjksf.html",
+  },
+  {
     name: "Yume Nikki",
-    desc: "Wander through the strange and surreal dreamscape of a reclusive girl named Madotsuki.",
+    desc: "No description.",
     url: "https://mattavern.netlify.app/ports/external-ports/mvrot.html",
   },
 ];
@@ -1390,17 +1483,6 @@ function buildCage() {
         </div>`,
   ).join("");
 
-  const pico8CardHtml = PICO8_GAMES.map(
-    (g) =>
-      `<div class="game-card">
-            <div class="game-card-top">
-                <span class="game-name">${g.name}</span>
-                <span class="game-desc">${g.desc}</span>
-            </div>
-            <a href="${g.url}" class="game-play">Play</a>
-        </div>`,
-  ).join("");
-
   const gamesTab = buildTab(
     "#games-button",
     `
@@ -1408,20 +1490,16 @@ function buildCage() {
             <div id="featured-content">
                 <div id="featured-inner">
                     <div id="featured-image">
-                        <img src="https://mattavern.netlify.app/assets/page/content-deleted.png" alt="Content Img">
+                        <img src="https://lh3.googleusercontent.com/sitesv/AG8ngQU5uh_pheLPSD5sHyq2W0qdDoPmbL1EqMWTAkBBkxx9xeNK3FyZ0YGWLMvWib1W89RsK4EkBKdlDMigPHXi8evwwIwKp9oJwxc9_YdY4lPOzwnt4xljzAyhncFnBLw-gikiSoCA93YjfT7NcQ9Px4EOEts1p2hKt4TYtj4yNqcAp6_Kl7pAKniUa-19RVKtUw3wfw6dE9xju4DKdk0t3NmYKowimcSDPuvqVBHtvk0=w1280" alt="Content Img">
                     </div>
                     <div id="featured-right">
-                        <div id="featured-title"><h2>Content Deleted</h2></div>
-                        <div id="featured-description"><p>I failed to port the game, and have continued to fail to port other games.</p></div>
-                        <div id="featured-button"><button disabled>Unavailable</button></div>
+                        <div id="featured-title"><h2>Dune Dash</h2></div>
+                        <div id="featured-description"><p>A rhythm-based desert runner where you control a ball gliding over dunes.</p></div>
+                        <div id="featured-button"><a href="https://mattavern.netlify.app/ports/external-ports/huiogahbgijanga.html"><button>Play Here</button></a></div>
                     </div>
                 </div>
             </div>
         </div>
-        ${pico8CardHtml ? `<section id="pico8-section">
-            <h3 class="catalogue-title">PICO-8</h3>
-            <div class="catalogue-grid">${pico8CardHtml}</div>
-        </section>` : ""}
         <section id="catalogue">
             <h3 id="catalogue-title">Games</h3>
             <div id="catalogue-grid">${cardHtml}</div>

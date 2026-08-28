@@ -392,7 +392,7 @@ hr {
 }
 
 #featured-image img {
-  image-rendering: pixelated;
+  image-rendering: optimizeQuality;
   height: 16rem;
   width: auto;
   border-radius: 8px;
@@ -428,7 +428,7 @@ hr {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95);
 }
 
-/*
+/* Available Version */
 #featured-button button {
   background-color: #d24cff;
   color: #fff;
@@ -446,9 +446,8 @@ hr {
   background-color: #a435ff;
   transform: scale(1.1);
 }
-*/
 
-/* Unavailable Version */
+/* Unavailable Version
 #featured-button button {
   background-color: #5c5c5c;
   color: #fff;
@@ -466,6 +465,7 @@ hr {
   background-color: #444444;
   transform: scale(1.1);
 }
+*/
 
 /* --- Chat Tab --- */
 #chat-tab {
